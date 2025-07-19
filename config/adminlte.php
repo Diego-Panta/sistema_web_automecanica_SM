@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
+    'logo' => '<b>Admin</b>ASM',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -313,32 +313,280 @@ return [
         // Sidebar items:
         [
             'type' => 'sidebar-menu-search',
-            'text' => 'search',
+            'text' => 'buscar',
         ],
         [
             'text' => 'blog',
             'url' => 'admin/blog',
             'can' => 'manage-blog',
         ],
+        // Todos (sera personalizado para cada rol)
         [
-            'text' => 'pages',
+            'text' => 'Panel',
             'url' => 'admin/pages',
             'icon' => 'far fa-fw fa-file',
             'label' => 4,
             'label_color' => 'success',
         ],
-        ['header' => 'account_settings'],
+        // Configuración de cuenta (común a todos)
+        ['header' => 'MI CUENTA'],
         [
-            'text' => 'profile',
-            'url' => 'admin/settings',
+            'text' => 'Perfil',
+            'url' => 'user/profile',
             'icon' => 'fas fa-fw fa-user',
         ],
         [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
+            'text' => 'Cambiar contraseña',
+            'url' => 'user/password',
             'icon' => 'fas fa-fw fa-lock',
         ],
+
+        // Módulos específicos por rol
+        ['header' => 'MÓDULOS PRINCIPALES'],
+
+        // Leads - común pero con diferentes permisos
         [
+            'text' => 'Gestión de Leads',
+            'icon' => 'fas fa-fw fa-user-tag',
+            'submenu' => [
+                [
+                    'text' => 'Mis Leads',
+                    'url' => 'leads',
+                    'icon' => 'fas fa-fw fa-list',
+                    //'can' => ['asesor', 'jefe-ventas', 'marketing'],
+                ],
+                [
+                    'text' => 'Nuevo Lead',
+                    'url' => 'leads/create',
+                    'icon' => 'fas fa-fw fa-plus-circle',
+                    //'can' => ['marketing'],
+                    'submenu' => [
+                        [
+                            'text' => 'Registro Manual',
+                            'url' => 'leads/create/manual',
+                            'icon' => 'fas fa-fw fa-keyboard',
+                        ],
+                        [
+                            'text' => 'Importar Leads',
+                            'url' => 'leads/import',
+                            'icon' => 'fas fa-fw fa-file-import',
+                        ],
+                    ],
+                ],
+                [
+                    'text' => 'Asignación de Leads',
+                    'url' => 'leads/assign',
+                    'icon' => 'fas fa-fw fa-users',
+                    //'can' => ['jefe-ventas', 'marketing'],
+                ],
+                [
+                    'text' => 'Configuración',
+                    'url' => '#',
+                    'icon' => 'fas fa-fw fa-cog',
+                    //'can' => ['admin', 'marketing'],
+                    'submenu' => [
+                        [
+                            'text' => 'Estados',
+                            'url' => 'leads/status',
+                            'icon' => 'fas fa-fw fa-tags',
+                        ],
+                        [
+                            'text' => 'Tipos de Lead',
+                            'url' => 'leads/types',
+                            'icon' => 'fas fa-fw fa-filter',
+                        ],
+                        [
+                            'text' => 'Canales',
+                            'url' => 'leads/channels',
+                            'icon' => 'fas fa-fw fa-road',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+
+        // Actividades - para asesores
+        [
+            'text' => 'Mis Actividades',
+            'icon' => 'fas fa-fw fa-tasks',
+            //'can' => ['asesor'],
+            'submenu' => [
+                [
+                    'text' => 'Leads Asignados',
+                    'url' => 'my-leads',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+                [
+                    'text' => 'Registrar Acción',
+                    'url' => 'actions/create',
+                    'icon' => 'fas fa-fw fa-plus',
+                ],
+                [
+                    'text' => 'Historial',
+                    'url' => 'my-history',
+                    'icon' => 'fas fa-fw fa-history',
+                ],
+                [
+                    'text' => 'Calendario',
+                    'url' => 'calendar',
+                    'icon' => 'fas fa-fw fa-calendar',
+                ],
+            ],
+        ],
+
+        // Reportes - para jefes
+        [
+            'text' => 'Reportes',
+            'icon' => 'fas fa-fw fa-chart-bar',
+            //'can' => ['jefe-ventas', 'marketing'],
+            'submenu' => [
+                [
+                    'text' => 'Embudo de Ventas',
+                    'url' => 'reports/funnel',
+                    'icon' => 'fas fa-fw fa-filter',
+                ],
+                [
+                    'text' => 'Desempeño Asesores',
+                    'url' => 'reports/performance',
+                    'icon' => 'fas fa-fw fa-user-graduate',
+                ],
+                [
+                    'text' => 'Conversiones',
+                    'url' => 'reports/conversions',
+                    'icon' => 'fas fa-fw fa-exchange-alt',
+                ],
+                [
+                    'text' => 'Tendencias',
+                    'url' => 'reports/trends',
+                    'icon' => 'fas fa-fw fa-chart-line',
+                ],
+            ],
+        ],
+
+        // Configuración - solo admin
+        ['header' => 'ADMINISTRACIÓN', 'can' => ['admin']],
+        [
+            'text' => 'Usuarios',
+            'icon' => 'fas fa-fw fa-users',
+            //'can' => ['admin'],
+            'submenu' => [
+                [
+                    'text' => 'Listado',
+                    'url' => 'users',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+                [
+                    'text' => 'Nuevo Usuario',
+                    'url' => 'users/create',
+                    'icon' => 'fas fa-fw fa-user-plus',
+                ],
+                [
+                    'text' => 'Roles y Permisos',
+                    'url' => 'roles',
+                    'icon' => 'fas fa-fw fa-user-shield',
+                ],
+                [
+                    'text' => 'Configuración',
+                    'url' => '#',
+                    'icon' => 'fas fa-fw fa-cog',
+                    //'can' => ['admin', 'marketing'],
+                    'submenu' => [
+                        [
+                            'text' => 'Estados',
+                            'url' => 'users/status',
+                            'icon' => 'fas fa-fw fa-tags',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        [
+            'text' => 'Configuración General',
+            'icon' => 'fas fa-fw fa-cogs',
+            //'can' => ['admin'],
+            'submenu' => [
+                [
+                    'text' => 'Clientes',
+                    'url' => 'clients',
+                    'icon' => 'fas fa-fw fa-address-book',
+                    'submenu' => [
+                        [
+                            'text' => 'Listado',
+                            'url' => 'clients/list',
+                            'icon' => 'fas fa-fw fa-list',
+                        ],
+                        [
+                            'text' => 'Configuración',
+                            'url' => '#',
+                            'icon' => 'fas fa-fw fa-cog',
+                            //'can' => ['admin', 'marketing'],
+                            'submenu' => [
+                                [
+                                    'text' => 'Estados',
+                                    'url' => 'clients/status',
+                                    'icon' => 'fas fa-fw fa-tags',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'text' => 'Vehículos',
+                    'url' => 'vehicles',
+                    'icon' => 'fas fa-fw fa-car',
+                    'submenu' => [
+                        [
+                            'text' => 'Modelos',
+                            'url' => 'vehicles/models',
+                            'icon' => 'fas fa-cogs',
+                        ],
+                        [
+                            'text' => 'Marcas',
+                            'url' => 'vehicles/brands',
+                            'icon' => 'fas fa-car-side',
+                        ],
+                    ],
+                ],
+                [
+                    'text' => 'Sedes y Turnos',
+                    'url' => 'locations',
+                    'icon' => 'fas fa-fw fa-map-marker-alt',
+                    'submenu' => [
+                        [
+                            'text' => 'Sedes',
+                            'url' => 'locations/sedes',
+                            'icon' => 'fas fa-fw fa-building',
+                            /*'submenu' => [
+                                [
+                                    'text' => 'Listado',
+                                    'url' => 'locations/sedes',
+                                ],
+                                [
+                                    'text' => 'Crear',
+                                    'url' => 'locations/sedes/create',
+                                ],
+                            ],*/
+                        ],
+                        [
+                            'text' => 'Turnos',
+                            'url' => 'locations/turnos',
+                            'icon' => 'fas fa-fw fa-clock',
+                            /*'submenu' => [
+                                [
+                                    'text' => 'Listado',
+                                    'url' => 'locations/turnos',
+                                ],
+                                [
+                                    'text' => 'Crear',
+                                    'url' => 'locations/turnos/create',
+                                ],
+                            ],*/
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        /*[
             'text' => 'multilevel',
             'icon' => 'fas fa-fw fa-share',
             'submenu' => [
@@ -375,8 +623,8 @@ return [
                     'url' => '#',
                 ],
             ],
-        ],
-        ['header' => 'labels'],
+        ],*/
+        /*['header' => 'labels'],
         [
             'text' => 'important',
             'icon_color' => 'red',
@@ -392,6 +640,46 @@ return [
             'icon_color' => 'cyan',
             'url' => '#',
         ],
+
+        ['header' => 'MODULOS'],
+        [
+            'text' => 'TURNOS',
+            'icon' => 'fas fa-fw fa-share',
+            'submenu' => [
+                [
+                    'text' => 'level_one',
+                    'url' => '#',
+                ],
+                [
+                    'text' => 'level_one',
+                    'url' => '#',
+                    'submenu' => [
+                        [
+                            'text' => 'level_two',
+                            'url' => '#',
+                        ],
+                        [
+                            'text' => 'level_two',
+                            'url' => '#',
+                            'submenu' => [
+                                [
+                                    'text' => 'level_three',
+                                    'url' => '#',
+                                ],
+                                [
+                                    'text' => 'level_three',
+                                    'url' => '#',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'text' => 'level_one',
+                    'url' => '#',
+                ],
+            ],
+        ],*/
     ],
 
     /*

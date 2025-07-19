@@ -17,9 +17,12 @@ return new class extends Migration
             $table->string('email')->unique(); // correo_empresarial
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('dni', 8)->unique()->nullable();
-            $table->string('celular', 9);
-            $table->string('celular_alterno', 9)->nullable();
+            $table->string('dni', 8)->unique()->nullable()
+                ->regex('/^[0-9]{8}$/'); // Para Perú
+            $table->string('celular', 9)
+                ->regex('/^9[0-9]{8}$/'); // Validar formato peruano
+            $table->string('celular_alterno', 9)->nullable()
+                ->regex('/^9[0-9]{8}$/'); 
             $table->string('email_personal')->nullable();
             $table->date('fecha_nacimiento')->nullable();
             $table->text('direccion')->nullable();

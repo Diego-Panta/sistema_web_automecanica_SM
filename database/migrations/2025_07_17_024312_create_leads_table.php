@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('leads', function (Blueprint $table) {
-            $table->id('lead_id');
+            $table->id();
             $table->foreignId('cliente_id')->constrained('clientes')->restrictOnDelete();
             $table->foreignId('canal_id')->constrained('canales')->restrictOnDelete();
             $table->foreignId('tipo_id')->constrained('tipo_leads')->restrictOnDelete();
             $table->foreignId('estado_actual_id')->constrained('estado_leads')->restrictOnDelete();
             $table->foreignId('resultado_id')->nullable()->constrained('resultado_leads')->nullOnDelete();
-            $table->foreignId('usuario_creador_id')->constrained('users')->nullOnDelete();
+            $table->foreignId('usuario_creador_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('medio_contacto_id')->constrained('medio_contactos')->restrictOnDelete();
             $table->foreignId('forma_registro_id')->constrained('forma_registros')->restrictOnDelete();
             $table->foreignId('modelo_id')->nullable()->constrained('modelo_vehiculos')->nullOnDelete();

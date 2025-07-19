@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('prediccion_pnls', function (Blueprint $table) {
-            $table->id('prediccion_id');
+            $table->id();
             $table->foreignId('lead_id')->constrained('leads')->cascadeOnDelete();
             $table->string('categoria_predicha', 100);
             $table->decimal('probabilidad', 5, 2);

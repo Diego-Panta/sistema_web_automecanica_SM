@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('user_laborales', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
-            $table->foreignId('turno_id')->constrained('turnos')->nullOnDelete();
-            $table->foreignId('sede_id')->constrained('sedes')->nullOnDelete();
-            $table->foreignId('estado_usuario_id')->constrained('estado_usuarios')->nullOnDelete();
+            $table->foreignId('turno_id')->nullable()->constrained('turnos')->nullOnDelete();
+            $table->foreignId('sede_id')->nullable()->constrained('sedes')->nullOnDelete();
+            $table->foreignId('estado_usuario_id')->nullable()->constrained('estado_usuarios')->nullOnDelete();
             $table->string('codigo_trabajador', 20)->unique();
             $table->date('fecha_contratacion_inicio');
             $table->date('fecha_contratacion_fin')->nullable();

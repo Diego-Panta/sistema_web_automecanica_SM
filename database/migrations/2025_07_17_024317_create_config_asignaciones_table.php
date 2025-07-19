@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('config_asignaciones', function (Blueprint $table) {
-            $table->id('config_id');
+            $table->id();
             $table->foreignId('tipo_lead_id')->nullable()->constrained('tipo_leads')->nullOnDelete();
             $table->foreignId('sede_id')->nullable()->constrained('sedes')->nullOnDelete();
             $table->integer('max_leads_por_asesor')->default(10);

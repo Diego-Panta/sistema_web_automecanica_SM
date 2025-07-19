@@ -6,5 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ResultadoLead extends Model
 {
-    //
+    public function leads()
+    {
+        return $this->hasMany(Lead::class, 'resultado_id');
+    }
 }

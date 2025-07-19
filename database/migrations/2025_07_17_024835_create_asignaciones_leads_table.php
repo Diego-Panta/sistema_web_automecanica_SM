@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('asignaciones_leads', function (Blueprint $table) {
-            $table->id('asignacion_id');
+            $table->id();
             $table->foreignId('lead_id')->constrained('leads')->cascadeOnDelete();
-            $table->foreignId('usuario_asignador_id')->constrained('users')->nullOnDelete();
-            $table->foreignId('usuario_asignado_id')->constrained('users')->nullOnDelete();
+            $table->foreignId('usuario_asignador_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('usuario_asignado_id')->constrained('users')->cascadeOnDelete();
             $table->timestamp('fecha_asignacion')->useCurrent();
             $table->text('observacion')->nullable();
             $table->timestamps();

@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('acciones_realizadas', function (Blueprint $table) {
-            $table->id('accion_realizada_id');
+            $table->id();
             $table->foreignId('lead_id')->constrained('leads')->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained('users')->nullOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('accion_id')->constrained('acciones')->restrictOnDelete();
             $table->timestamp('fecha')->useCurrent();
             $table->text('comentario')->nullable();
