@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TipoLeadController;
+use App\Http\Controllers\EstadoLeadController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,12 +18,12 @@ Route::get('leads/status', function () {
 // Rutas para la configuración de leads
 Route::prefix('leads')->group(function () {
     // Estados
-    /*Route::get('/status', [LeadConfigController::class, 'statusIndex'])->name('leads.status');
-    Route::get('/status/create', [LeadConfigController::class, 'statusCreate'])->name('leads.status.create');
-    Route::post('/status', [LeadConfigController::class, 'statusStore'])->name('leads.status.store');
-    Route::get('/status/{estado}/edit', [LeadConfigController::class, 'statusEdit'])->name('leads.status.edit');
-    Route::put('/status/{estado}', [LeadConfigController::class, 'statusUpdate'])->name('leads.status.update');
-    Route::delete('/status/{estado}', [LeadConfigController::class, 'statusDestroy'])->name('leads.status.destroy');*/
+    Route::get('/status', [EstadoLeadController::class, 'index'])->name('leads.status');
+    Route::get('/status/create', [EstadoLeadController::class, 'create'])->name('leads.status.create');
+    Route::post('/status', [EstadoLeadController::class, 'store'])->name('leads.status.store');
+    Route::get('/status/{estado}/edit', [EstadoLeadController::class, 'edit'])->name('leads.status.edit');
+    Route::put('/status/{estado}', [EstadoLeadController::class, 'update'])->name('leads.status.update');
+    Route::delete('/status/{estado}', [EstadoLeadController::class, 'destroy'])->name('leads.status.destroy');
     
     // Tipos de Lead (actualizadas con CRUD completo)
     Route::get('/types', [TipoLeadController::class, 'index'])->name('leads.types.index');

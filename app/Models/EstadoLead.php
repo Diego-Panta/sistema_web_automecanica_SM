@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EstadoLead extends Model
 {
+    protected $fillable = ['nombre_estado'];
+    
     public function leadsActuales()
     {
         return $this->hasMany(Lead::class, 'estado_actual_id');
