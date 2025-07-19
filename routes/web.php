@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TipoLeadController;
 use App\Http\Controllers\EstadoLeadController;
+use App\Http\Controllers\EstadoClienteController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -40,6 +41,17 @@ Route::prefix('leads')->group(function () {
     Route::get('/channels/{canal}/edit', [LeadConfigController::class, 'channelsEdit'])->name('leads.channels.edit');
     Route::put('/channels/{canal}', [LeadConfigController::class, 'channelsUpdate'])->name('leads.channels.update');
     Route::delete('/channels/{canal}', [LeadConfigController::class, 'channelsDestroy'])->name('leads.channels.destroy');*/
+});
+
+Route::prefix('clients')->group(function () {
+    // Estados
+    Route::get('/status', [EstadoClienteController::class, 'index'])->name('clients.status');
+    Route::get('/status/create', [EstadoClienteController::class, 'create'])->name('clients.status.create');
+    Route::post('/status', [EstadoClienteController::class, 'store'])->name('clients.status.store');
+    Route::get('/status/{estado}/edit', [EstadoClienteController::class, 'edit'])->name('clients.status.edit');
+    Route::put('/status/{estado}', [EstadoClienteController::class, 'update'])->name('clients.status.update');
+    Route::delete('/status/{estado}', [EstadoClienteController::class, 'destroy'])->name('clients.status.destroy');
+
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
