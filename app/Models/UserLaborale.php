@@ -25,6 +25,6 @@ class UserLaborale extends Model
 
     public function estado()
     {
-        return $this->belongsTo(EstadoUsuario::class, 'estado_usuario_id');
+        return $this->belongsTo(EstadoUser::class, 'estado_user_id');
     }
 }

@@ -464,7 +464,7 @@ return [
         ],
 
         // Configuración - solo admin
-        ['header' => 'ADMINISTRACIÓN', 'can' => ['admin']],
+        ['header' => 'ADMINISTRACIÓN'],//, 'can' => ['admin']],
         [
             'text' => 'Usuarios',
             'icon' => 'fas fa-fw fa-users',
