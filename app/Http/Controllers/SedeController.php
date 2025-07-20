@@ -62,20 +62,20 @@ class SedeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Sede $estado)
+    public function edit(Sede $sede)
     {
-        return view('configuracionGeneral.sedes.edit', ['sede' => $estado]);
+        return view('configuracionGeneral.sedes.edit', ['sede' => $sede]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSedeRequest $request, Sede $estado)
+    public function update(UpdateSedeRequest $request, Sede $sede)
     {
         try {
             DB::beginTransaction();
 
-            $estado->update($request->validated());
+            $sede->update($request->validated());
 
             DB::commit();
 
@@ -84,7 +84,7 @@ class SedeController extends Controller
         } catch (Throwable $e) {
             DB::rollBack();
             Log::error("Error al actualizar sede", ['error' => $e]);
-            return redirect()->route('locations.sedes.edit', $estado)
+            return redirect()->route('locations.sedes.edit', $sede)
                 ->with('error', 'Error al actualizar la sede');
         }
     }
@@ -92,12 +92,12 @@ class SedeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($estado_id)
+    public function destroy($sede_id)
     {
         try {
             DB::beginTransaction();
 
-            $sede = Sede::findOrFail($estado_id);
+            $sede = Sede::findOrFail($sede_id);
             $sede->delete();
 
             DB::commit();
@@ -111,4 +111,5 @@ class SedeController extends Controller
                 ->with('error', 'Error al eliminar la sede: ' . $e->getMessage());
         }
     }
+    
 }

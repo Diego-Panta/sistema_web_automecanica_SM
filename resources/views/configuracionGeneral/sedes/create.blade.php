@@ -11,21 +11,67 @@
         <div class="card-body">
             <form action="{{ route('locations.sedes.store') }}" method="POST">
                 @csrf
-                <div class="form-group">
-                    <label for="nombre_sede">Nombre de la Sede</label>
-                    <input type="text" name="nombre_sede" id="nombre_sede" 
-                           class="form-control @error('nombre_sede') is-invalid @enderror" 
-                           value="{{ old('nombre_sede') }}" 
-                           placeholder="Ej: Sede Principal, Sede Norte, etc." required>
-                    @error('nombre_sede')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="codigo_sede">Código de Sede*</label>
+                            <input type="text" name="codigo_sede" id="codigo_sede" 
+                                   class="form-control @error('codigo_sede') is-invalid @enderror" 
+                                   value="{{ old('codigo_sede') }}" 
+                                   placeholder="Ej: SEDE-001" required>
+                            @error('codigo_sede')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nombre_sede">Nombre de la Sede*</label>
+                            <input type="text" name="nombre_sede" id="nombre_sede" 
+                                   class="form-control @error('nombre_sede') is-invalid @enderror" 
+                                   value="{{ old('nombre_sede') }}" required>
+                            @error('nombre_sede')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
-                
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="ciudad">Ciudad*</label>
+                            <input type="text" name="ciudad" id="ciudad" 
+                                   class="form-control @error('ciudad') is-invalid @enderror" 
+                                   value="{{ old('ciudad') }}" required>
+                            @error('ciudad')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="capacidad">Capacidad (Opcional)</label>
+                            <input type="number" name="capacidad" id="capacidad" 
+                                   class="form-control @error('capacidad') is-invalid @enderror" 
+                                   value="{{ old('capacidad') }}" min="1">
+                            @error('capacidad')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label for="direccion">Dirección</label>
+                    <label for="direccion">Dirección*</label>
                     <input type="text" name="direccion" id="direccion" 
                            class="form-control @error('direccion') is-invalid @enderror" 
                            value="{{ old('direccion') }}" required>
@@ -35,13 +81,13 @@
                         </span>
                     @enderror
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="capacidad">Capacidad (Opcional)</label>
-                    <input type="number" name="capacidad" id="capacidad" 
-                           class="form-control @error('capacidad') is-invalid @enderror" 
-                           value="{{ old('capacidad') }}" min="1">
-                    @error('capacidad')
+                    <label for="descripcion">Descripción (Opcional)</label>
+                    <textarea name="descripcion" id="descripcion" 
+                              class="form-control @error('descripcion') is-invalid @enderror" 
+                              rows="3">{{ old('descripcion') }}</textarea>
+                    @error('descripcion')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>

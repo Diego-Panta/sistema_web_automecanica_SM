@@ -23,13 +23,16 @@ class UpdateSedeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre_sede' => [
+            'codigo_sede' => [
                 'required',
                 'string',
-                'max:100',
-                Rule::unique('sedes', 'nombre_sede')->ignore($this->route('estado'))
+                'max:50',
+                Rule::unique('sedes', 'codigo_sede')->ignore($this->route('sede'))
             ],
+            'nombre_sede' => 'required|string|max:255',
+            'ciudad' => 'required|string|max:100',
             'direccion' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
             'capacidad' => 'nullable|integer|min:1'
         ];
     }
@@ -37,13 +40,20 @@ class UpdateSedeRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'codigo_sede.required' => 'El código de sede es obligatorio.',
+            'codigo_sede.string' => 'El código debe ser texto.',
+            'codigo_sede.max' => 'El código no puede exceder 50 caracteres.',
+            'codigo_sede.unique' => 'Este código de sede ya existe.',
             'nombre_sede.required' => 'El nombre de la sede es obligatorio.',
-            'nombre_sede.string' => 'El nombre debe ser una cadena de texto.',
-            'nombre_sede.max' => 'El nombre no puede exceder los 100 caracteres.',
-            'nombre_sede.unique' => 'Esta sede ya existe en el sistema.',
+            'nombre_sede.string' => 'El nombre debe ser texto.',
+            'nombre_sede.max' => 'El nombre no puede exceder 255 caracteres.',
+            'ciudad.required' => 'La ciudad es obligatoria.',
+            'ciudad.string' => 'La ciudad debe ser texto.',
+            'ciudad.max' => 'La ciudad no puede exceder 100 caracteres.',
             'direccion.required' => 'La dirección es obligatoria.',
             'direccion.string' => 'La dirección debe ser texto.',
-            'direccion.max' => 'La dirección no puede exceder los 255 caracteres.',
+            'direccion.max' => 'La dirección no puede exceder 255 caracteres.',
+            'descripcion.string' => 'La descripción debe ser texto.',
             'capacidad.integer' => 'La capacidad debe ser un número entero.',
             'capacidad.min' => 'La capacidad mínima es 1.'
         ];
@@ -52,8 +62,11 @@ class UpdateSedeRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'codigo_sede' => 'código de sede',
             'nombre_sede' => 'nombre de la sede',
+            'ciudad' => 'ciudad',
             'direccion' => 'dirección',
+            'descripcion' => 'descripción',
             'capacidad' => 'capacidad'
         ];
     }

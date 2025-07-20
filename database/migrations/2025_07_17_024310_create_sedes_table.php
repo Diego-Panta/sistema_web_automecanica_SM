@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('codigo_sede', 50)->unique();
             $table->string('nombre_sede', 255);
+            $table->string('ciudad', 100);
+            $table->string('direccion', 255);
             $table->text('descripcion')->nullable();
             $table->integer('capacidad')->nullable();
             $table->timestamps();

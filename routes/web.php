@@ -7,6 +7,7 @@ use App\Http\Controllers\EstadoClienteController;
 use App\Http\Controllers\EstadoUserController;
 use App\Http\Controllers\CanaleController;
 use App\Http\Controllers\SedeController;
+use App\Http\Controllers\TurnoController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -69,13 +70,20 @@ Route::prefix('users')->group(function () {
 });
 
 Route::prefix('locations')->group(function () {
-    // Estados
+
     Route::get('/sedes', [SedeController::class, 'index'])->name('locations.sedes');
     Route::get('/sedes/create', [SedeController::class, 'create'])->name('locations.sedes.create');
     Route::post('/sedes', [SedeController::class, 'store'])->name('locations.sedes.store');
-    Route::get('/sedes/{estado}/edit', [SedeController::class, 'edit'])->name('locations.sedes.edit');
-    Route::put('/sedes/{estado}', [SedeController::class, 'update'])->name('locations.sedes.update');
-    Route::delete('/sedes/{estado}', [SedeController::class, 'destroy'])->name('locations.sedes.destroy');
+    Route::get('/sedes/{sede}/edit', [SedeController::class, 'edit'])->name('locations.sedes.edit');
+    Route::put('/sedes/{sede}', [SedeController::class, 'update'])->name('locations.sedes.update');
+    Route::delete('/sedes/{sede}', [SedeController::class, 'destroy'])->name('locations.sedes.destroy');
+
+    Route::get('/turnos', [TurnoController::class, 'index'])->name('locations.turnos');
+    Route::get('/turnos/create', [TurnoController::class, 'create'])->name('locations.turnos.create');
+    Route::post('/turnos', [TurnoController::class, 'store'])->name('locations.turnos.store');
+    Route::get('/turnos/{turno}/edit', [TurnoController::class, 'edit'])->name('locations.turnos.edit');
+    Route::put('/turnos/{turno}', [TurnoController::class, 'update'])->name('locations.turnos.update');
+    Route::delete('/turnos/{turno}', [TurnoController::class, 'destroy'])->name('locations.turnos.destroy');
 
 });
 
