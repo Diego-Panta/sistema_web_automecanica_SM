@@ -8,7 +8,14 @@ use App\Http\Controllers\EstadoUserController;
 use App\Http\Controllers\CanaleController;
 use App\Http\Controllers\SedeController;
 use App\Http\Controllers\TurnoController;
+use App\Http\Controllers\MedioContactoController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\FormaRegistroController;
+use App\Http\Controllers\ResultadoLeadController;
+use App\Http\Controllers\AccioneController;
+use App\Http\Controllers\MarcaVehiculoController;
+use App\Http\Controllers\TipoVehiculoController;
+use App\Http\Controllers\ModeloVehiculoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,6 +52,30 @@ Route::prefix('leads')->group(function () {
     Route::get('/channels/{canal}/edit', [CanaleController::class, 'edit'])->name('leads.channels.edit');
     Route::put('/channels/{canal}', [CanaleController::class, 'update'])->name('leads.channels.update');
     Route::delete('/channels/{canal}', [CanaleController::class, 'destroy'])->name('leads.channels.destroy');
+
+    // Medios de contactos
+    Route::get('/contacts', [MedioContactoController::class, 'index'])->name('leads.contacts');
+    Route::get('/contacts/create', [MedioContactoController::class, 'create'])->name('leads.contacts.create');
+    Route::post('/contacts', [MedioContactoController::class, 'store'])->name('leads.contacts.store');
+    Route::get('/contacts/{contacto}/edit', [MedioContactoController::class, 'edit'])->name('leads.contacts.edit');
+    Route::put('/contacts/{contacto}', [MedioContactoController::class, 'update'])->name('leads.contacts.update');
+    Route::delete('/contacts/{contacto}', [MedioContactoController::class, 'destroy'])->name('leads.contacts.destroy');
+
+    // Formas de registro
+    Route::get('/registrations', [FormaRegistroController::class, 'index'])->name('leads.registrations');
+    Route::get('/registrations/create', [FormaRegistroController::class, 'create'])->name('leads.registrations.create');
+    Route::post('/registrations', [FormaRegistroController::class, 'store'])->name('leads.registrations.store');
+    Route::get('/registrations/{registro}/edit', [FormaRegistroController::class, 'edit'])->name('leads.registrations.edit');
+    Route::put('/registrations/{registro}', [FormaRegistroController::class, 'update'])->name('leads.registrations.update');
+    Route::delete('/registrations/{registro}', [FormaRegistroController::class, 'destroy'])->name('leads.registrations.destroy');
+
+    // Tipos de resultados
+    Route::get('/results', [ResultadoLeadController::class, 'index'])->name('leads.results');
+    Route::get('/results/create', [ResultadoLeadController::class, 'create'])->name('leads.results.create');
+    Route::post('/results', [ResultadoLeadController::class, 'store'])->name('leads.results.store');
+    Route::get('/results/{resultado}/edit', [ResultadoLeadController::class, 'edit'])->name('leads.results.edit');
+    Route::put('/results/{resultado}', [ResultadoLeadController::class, 'update'])->name('leads.results.update');
+    Route::delete('/results/{resultado}', [ResultadoLeadController::class, 'destroy'])->name('leads.results.destroy');
 });
 
 Route::prefix('clients')->group(function () {
@@ -84,7 +115,45 @@ Route::prefix('locations')->group(function () {
     Route::get('/turnos/{turno}/edit', [TurnoController::class, 'edit'])->name('locations.turnos.edit');
     Route::put('/turnos/{turno}', [TurnoController::class, 'update'])->name('locations.turnos.update');
     Route::delete('/turnos/{turno}', [TurnoController::class, 'destroy'])->name('locations.turnos.destroy');
+});
+
+//Aciones
+Route::prefix('accions')->group(function () {
+    Route::get('/', [AccioneController::class, 'index'])->name('accions.index');
+    Route::get('/create', [AccioneController::class, 'create'])->name('accions.create');
+    Route::post('/', [AccioneController::class, 'store'])->name('accions.store');
+    Route::get('/{accion}/edit', [AccioneController::class, 'edit'])->name('accions.edit');
+    Route::put('/{accion}', [AccioneController::class, 'update'])->name('accions.update');
+    Route::delete('/{accion}', [AccioneController::class, 'destroy'])->name('accions.destroy');
+});
+
+Route::prefix('vehicles')->group(function () {
+
+    // Rutas para Modelos
+    Route::get('/models', [ModeloVehiculoController::class, 'index'])->name('vehicles.models');
+    Route::get('/models/create', [ModeloVehiculoController::class, 'create'])->name('vehicles.models.create');
+    Route::post('/models', [ModeloVehiculoController::class, 'store'])->name('vehicles.models.store');
+    Route::get('/models/{model}/edit', [ModeloVehiculoController::class, 'edit'])->name('vehicles.models.edit');
+    Route::put('/models/{model}', [ModeloVehiculoController::class, 'update'])->name('vehicles.models.update');
+    Route::delete('/models/{model}', [ModeloVehiculoController::class, 'destroy'])->name('vehicles.models.destroy');
+
+    // Rutas para Marcas
+    Route::get('/brands', [MarcaVehiculoController::class, 'index'])->name('vehicles.brands');
+    Route::get('/brands/create', [MarcaVehiculoController::class, 'create'])->name('vehicles.brands.create');
+    Route::post('/brands', [MarcaVehiculoController::class, 'store'])->name('vehicles.brands.store');
+    Route::get('/brands/{brand}/edit', [MarcaVehiculoController::class, 'edit'])->name('vehicles.brands.edit');
+    Route::put('/brands/{brand}', [MarcaVehiculoController::class, 'update'])->name('vehicles.brands.update');
+    Route::delete('/brands/{brand}', [MarcaVehiculoController::class, 'destroy'])->name('vehicles.brands.destroy');
+
+    // Rutas para Tipos
+    Route::get('/types', [TipoVehiculoController::class, 'index'])->name('vehicles.types');
+    Route::get('/types/create', [TipoVehiculoController::class, 'create'])->name('vehicles.types.create');
+    Route::post('/types', [TipoVehiculoController::class, 'store'])->name('vehicles.types.store');
+    Route::get('/types/{type}/edit', [TipoVehiculoController::class, 'edit'])->name('vehicles.types.edit');
+    Route::put('/types/{type}', [TipoVehiculoController::class, 'update'])->name('vehicles.types.update');
+    Route::delete('/types/{type}', [TipoVehiculoController::class, 'destroy'])->name('vehicles.types.destroy');
 
 });
+
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

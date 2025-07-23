@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class FormaRegistro extends Model
 {
+    protected $fillable = ['nombre_forma'];
+    
     public function leads()
     {
         return $this->hasMany(Lead::class, 'forma_registro_id');

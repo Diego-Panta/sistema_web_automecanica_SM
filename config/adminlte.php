@@ -400,6 +400,21 @@ return [
                             'url' => 'leads/channels',
                             'icon' => 'fas fa-fw fa-road',
                         ],
+                        [
+                            'text' => 'Medios de contactos',
+                            'url' => 'leads/contacts',
+                            'icon' => 'fas fa-fw fa-phone-alt', // icono para contacto
+                        ],
+                        [
+                            'text' => 'Formas de registros',
+                            'url' => 'leads/registrations',
+                            'icon' => 'fas fa-fw fa-clipboard-list', // icono para formulario/registro
+                        ],
+                        [
+                            'text' => 'Tipos de resultados',
+                            'url' => 'leads/results',
+                            'icon' => 'fas fa-fw fa-poll', // icono para resultados
+                        ],
                     ],
                 ],
             ],
@@ -418,7 +433,7 @@ return [
                 ],
                 [
                     'text' => 'Registrar Acción',
-                    'url' => 'actions/create',
+                    'url' => 'register-actions',
                     'icon' => 'fas fa-fw fa-plus',
                 ],
                 [
@@ -464,7 +479,7 @@ return [
         ],
 
         // Configuración - solo admin
-        ['header' => 'ADMINISTRACIÓN'],//, 'can' => ['admin']],
+        ['header' => 'ADMINISTRACIÓN'], //, 'can' => ['admin']],
         [
             'text' => 'Usuarios',
             'icon' => 'fas fa-fw fa-users',
@@ -545,6 +560,11 @@ return [
                             'url' => 'vehicles/brands',
                             'icon' => 'fas fa-car-side',
                         ],
+                        [
+                            'text' => 'Tipos',
+                            'url' => 'vehicles/types',
+                            'icon' => 'fas fa-car',
+                        ],
                     ],
                 ],
                 [
@@ -583,6 +603,11 @@ return [
                             ],*/
                         ],
                     ],
+                ],
+                [
+                    'text' => 'Acciones',
+                    'url' => 'accions',
+                    'icon' => 'fas fa-wrench',
                 ],
             ],
         ],

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Accione extends Model
 {
+    protected $fillable = ['nombre_accion', 'descripcion'];
+    
     // Relación con acciones realizadas
     public function realizaciones()
     {
