@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AsignacionLead extends Model
 {
-    protected $table = 'asignaciones_lead';
+    protected $table = 'asignaciones_leads';
     
     public function lead()
     {

@@ -16,6 +16,11 @@ use App\Http\Controllers\AccioneController;
 use App\Http\Controllers\MarcaVehiculoController;
 use App\Http\Controllers\TipoVehiculoController;
 use App\Http\Controllers\ModeloVehiculoController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\LeadController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,6 +34,28 @@ Route::get('leads/status', function () {
 
 // Rutas para la configuración de leads
 Route::prefix('leads')->group(function () {
+    // Listado de leads
+    Route::get('/', [LeadController::class, 'index'])->name('leads.index');
+    
+    // Creación de nuevos leads
+    Route::get('/create', [LeadController::class, 'create'])->name('leads.create');
+    Route::post('/', [LeadController::class, 'store'])->name('leads.store');
+    Route::get('/{lead}', [LeadController::class, 'show'])->name('leads.show');
+    Route::get('/{lead}/edit', [LeadController::class, 'edit'])->name('leads.edit');
+    Route::put('/{lead}', [LeadController::class, 'update'])->name('leads.update');
+    Route::delete('/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
+    
+    // Registro manual
+    Route::get('/create/manual', [LeadController::class, 'createManual'])->name('leads.create.manual');
+    Route::post('/create/manual', [LeadController::class, 'storeManual'])->name('leads.store.manual');
+    
+    // Importación de leads
+    Route::get('/import', [LeadController::class, 'import'])->name('leads.import');
+    Route::post('/import', [LeadController::class, 'processImport'])->name('leads.process.import');
+    
+    // Asignación de leads
+    Route::get('/assign', [LeadController::class, 'assign'])->name('leads.assign');
+    Route::post('/assign', [LeadController::class, 'processAssign'])->name('leads.process.assign');
     // Estados
     Route::get('/status', [EstadoLeadController::class, 'index'])->name('leads.status');
     Route::get('/status/create', [EstadoLeadController::class, 'create'])->name('leads.status.create');
@@ -36,7 +63,7 @@ Route::prefix('leads')->group(function () {
     Route::get('/status/{estado}/edit', [EstadoLeadController::class, 'edit'])->name('leads.status.edit');
     Route::put('/status/{estado}', [EstadoLeadController::class, 'update'])->name('leads.status.update');
     Route::delete('/status/{estado}', [EstadoLeadController::class, 'destroy'])->name('leads.status.destroy');
-    
+
     // Tipos de Lead (actualizadas con CRUD completo)
     Route::get('/types', [TipoLeadController::class, 'index'])->name('leads.types.index');
     Route::get('/types/create', [TipoLeadController::class, 'create'])->name('leads.types.create');
@@ -44,7 +71,7 @@ Route::prefix('leads')->group(function () {
     Route::get('/types/{tipo}/edit', [TipoLeadController::class, 'edit'])->name('leads.types.edit');
     Route::put('/types/{tipo}', [TipoLeadController::class, 'update'])->name('leads.types.update');
     Route::delete('/types/{tipo}', [TipoLeadController::class, 'destroy'])->name('leads.types.destroy');
-    
+
     // Canales
     Route::get('/channels', [CanaleController::class, 'index'])->name('leads.channels');
     Route::get('/channels/create', [CanaleController::class, 'create'])->name('leads.channels.create');
@@ -86,10 +113,44 @@ Route::prefix('clients')->group(function () {
     Route::get('/status/{estado}/edit', [EstadoClienteController::class, 'edit'])->name('clients.status.edit');
     Route::put('/status/{estado}', [EstadoClienteController::class, 'update'])->name('clients.status.update');
     Route::delete('/status/{estado}', [EstadoClienteController::class, 'destroy'])->name('clients.status.destroy');
-
 });
 
 Route::prefix('users')->group(function () {
+
+    // Rutas para Listado de Usuarios
+    Route::get('/', [UserController::class, 'index'])->name('users.index');
+    Route::get('/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/', [UserController::class, 'store'])->name('users.store');
+    Route::get('/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Rutas para Roles
+    Route::prefix('roles')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('users.roles');
+        Route::get('/create', [RoleController::class, 'create'])->name('users.roles.create');
+        Route::post('/', [RoleController::class, 'store'])->name('users.roles.store');
+        Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('users.roles.edit');
+        Route::put('/{role}', [RoleController::class, 'update'])->name('users.roles.update');
+        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('users.roles.destroy');
+    });
+
+    // Rutas para Permisos
+    Route::prefix('permissions')->group(function () {
+        Route::get('/', [PermissionController::class, 'index'])->name('users.permissions');
+        Route::get('/create', [PermissionController::class, 'create'])->name('users.permissions.create');
+        Route::post('/', [PermissionController::class, 'store'])->name('users.permissions.store');
+        Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('users.permissions.edit');
+        Route::put('/{permission}', [PermissionController::class, 'update'])->name('users.permissions.update');
+        Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('users.permissions.destroy');
+    });
+
+    // Rutas para Asignación de Permisos a Roles
+    Route::prefix('role-permissions')->group(function () {
+        Route::get('/{role}', [RolePermissionController::class, 'edit'])->name('users.role-permissions.edit');
+        Route::put('/{role}', [RolePermissionController::class, 'update'])->name('users.role-permissions.update');
+    });
+
     // Estados
     Route::get('/status', [EstadoUserController::class, 'index'])->name('users.status');
     Route::get('/status/create', [EstadoUserController::class, 'create'])->name('users.status.create');
@@ -97,7 +158,6 @@ Route::prefix('users')->group(function () {
     Route::get('/status/{estado}/edit', [EstadoUserController::class, 'edit'])->name('users.status.edit');
     Route::put('/status/{estado}', [EstadoUserController::class, 'update'])->name('users.status.update');
     Route::delete('/status/{estado}', [EstadoUserController::class, 'destroy'])->name('users.status.destroy');
-
 });
 
 Route::prefix('locations')->group(function () {
@@ -152,7 +212,6 @@ Route::prefix('vehicles')->group(function () {
     Route::get('/types/{type}/edit', [TipoVehiculoController::class, 'edit'])->name('vehicles.types.edit');
     Route::put('/types/{type}', [TipoVehiculoController::class, 'update'])->name('vehicles.types.update');
     Route::delete('/types/{type}', [TipoVehiculoController::class, 'destroy'])->name('vehicles.types.destroy');
-
 });
 
 

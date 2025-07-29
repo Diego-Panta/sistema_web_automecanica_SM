@@ -497,8 +497,24 @@ return [
                 ],
                 [
                     'text' => 'Roles y Permisos',
-                    'url' => 'roles',
                     'icon' => 'fas fa-fw fa-user-shield',
+                    'submenu' => [
+                        [
+                            'text' => 'Listado de Roles',
+                            'url' => 'users/roles',
+                            'icon' => 'fas fa-fw fa-list-alt',
+                        ],
+                        [
+                            'text' => 'Listado de Permisos',
+                            'url' => 'users/permissions',
+                            'icon' => 'fas fa-fw fa-lock',
+                        ],
+                        /*[
+                            'text' => 'Asignar Permisos a Roles',
+                            'url' => 'users/role-permissions/{role}',
+                            'icon' => 'fas fa-fw fa-user-shield',
+                        ],*/
+                    ],
                 ],
                 [
                     'text' => 'Configuración',
