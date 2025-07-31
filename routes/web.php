@@ -21,6 +21,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\ClienteController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,35 +35,6 @@ Route::get('leads/status', function () {
 
 // Rutas para la configuración de leads
 Route::prefix('leads')->group(function () {
-    // Listado de leads
-    Route::get('/', [LeadController::class, 'index'])->name('leads.index');
-    
-    // Creación de nuevos leads
-    Route::get('/create', [LeadController::class, 'create'])->name('leads.create');
-    Route::post('/', [LeadController::class, 'store'])->name('leads.store');
-    Route::get('/{lead}', [LeadController::class, 'show'])->name('leads.show');
-    Route::get('/{lead}/edit', [LeadController::class, 'edit'])->name('leads.edit');
-    Route::put('/{lead}', [LeadController::class, 'update'])->name('leads.update');
-    Route::delete('/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
-    
-    // Registro manual
-    Route::get('/create/manual', [LeadController::class, 'createManual'])->name('leads.create.manual');
-    Route::post('/create/manual', [LeadController::class, 'storeManual'])->name('leads.store.manual');
-    
-    // Importación de leads
-    Route::get('/import', [LeadController::class, 'import'])->name('leads.import');
-    Route::post('/import', [LeadController::class, 'processImport'])->name('leads.process.import');
-    
-    // Asignación de leads
-    Route::get('/assign', [LeadController::class, 'assign'])->name('leads.assign');
-    Route::post('/assign', [LeadController::class, 'processAssign'])->name('leads.process.assign');
-    // Estados
-    Route::get('/status', [EstadoLeadController::class, 'index'])->name('leads.status');
-    Route::get('/status/create', [EstadoLeadController::class, 'create'])->name('leads.status.create');
-    Route::post('/status', [EstadoLeadController::class, 'store'])->name('leads.status.store');
-    Route::get('/status/{estado}/edit', [EstadoLeadController::class, 'edit'])->name('leads.status.edit');
-    Route::put('/status/{estado}', [EstadoLeadController::class, 'update'])->name('leads.status.update');
-    Route::delete('/status/{estado}', [EstadoLeadController::class, 'destroy'])->name('leads.status.destroy');
 
     // Tipos de Lead (actualizadas con CRUD completo)
     Route::get('/types', [TipoLeadController::class, 'index'])->name('leads.types.index');
@@ -103,9 +75,42 @@ Route::prefix('leads')->group(function () {
     Route::get('/results/{resultado}/edit', [ResultadoLeadController::class, 'edit'])->name('leads.results.edit');
     Route::put('/results/{resultado}', [ResultadoLeadController::class, 'update'])->name('leads.results.update');
     Route::delete('/results/{resultado}', [ResultadoLeadController::class, 'destroy'])->name('leads.results.destroy');
+
+    // Estados
+    Route::get('/status', [EstadoLeadController::class, 'index'])->name('leads.status');
+    Route::get('/status/create', [EstadoLeadController::class, 'create'])->name('leads.status.create');
+    Route::post('/status', [EstadoLeadController::class, 'store'])->name('leads.status.store');
+    Route::get('/status/{estado}/edit', [EstadoLeadController::class, 'edit'])->name('leads.status.edit');
+    Route::put('/status/{estado}', [EstadoLeadController::class, 'update'])->name('leads.status.update');
+    Route::delete('/status/{estado}', [EstadoLeadController::class, 'destroy'])->name('leads.status.destroy');
+    
+    Route::get('/', [LeadController::class, 'index'])->name('leads.index');
+    Route::get('/create', [LeadController::class, 'create'])->name('leads.create');
+    Route::post('/', [LeadController::class, 'store'])->name('leads.store');
+    Route::get('/create/manual', [LeadController::class, 'createManual'])->name('leads.create.manual');
+    Route::post('/create/manual', [LeadController::class, 'storeManual'])->name('leads.store.manual');
+    Route::get('/{lead}', [LeadController::class, 'show'])->name('leads.show');
+    Route::get('/{lead}/edit', [LeadController::class, 'edit'])->name('leads.edit');
+    Route::put('/{lead}', [LeadController::class, 'update'])->name('leads.update');
+    Route::delete('/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
+    
+    // Rutas adicionales
+    Route::get('/import', [LeadController::class, 'import'])->name('leads.import');
+    Route::post('/import', [LeadController::class, 'processImport'])->name('leads.process.import');
+    Route::get('/assign', [LeadController::class, 'assign'])->name('leads.assign');
+    Route::post('/assign', [LeadController::class, 'processAssign'])->name('leads.process.assign');
+    
 });
 
-Route::prefix('clients')->group(function () {
+Route::prefix('clientes')->name('clientes.')->group(function () {
+    Route::get('/', [ClienteController::class, 'index'])->name('index');
+    Route::get('/crear', [ClienteController::class, 'create'])->name('create');
+    Route::post('/', [ClienteController::class, 'store'])->name('store');
+    Route::get('/{cliente}', [ClienteController::class, 'show'])->name('show');
+    Route::get('/{cliente}/editar', [ClienteController::class, 'edit'])->name('edit');
+    Route::put('/{cliente}', [ClienteController::class, 'update'])->name('update');
+    Route::delete('/{cliente}', [ClienteController::class, 'destroy'])->name('destroy');
+
     // Estados
     Route::get('/status', [EstadoClienteController::class, 'index'])->name('clients.status');
     Route::get('/status/create', [EstadoClienteController::class, 'create'])->name('clients.status.create');
@@ -113,6 +118,7 @@ Route::prefix('clients')->group(function () {
     Route::get('/status/{estado}/edit', [EstadoClienteController::class, 'edit'])->name('clients.status.edit');
     Route::put('/status/{estado}', [EstadoClienteController::class, 'update'])->name('clients.status.update');
     Route::delete('/status/{estado}', [EstadoClienteController::class, 'destroy'])->name('clients.status.destroy');
+
 });
 
 Route::prefix('users')->group(function () {

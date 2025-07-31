@@ -538,12 +538,12 @@ return [
             'submenu' => [
                 [
                     'text' => 'Clientes',
-                    'url' => 'clients',
+                    'url' => 'clientes',
                     'icon' => 'fas fa-fw fa-address-book',
                     'submenu' => [
                         [
                             'text' => 'Listado',
-                            'url' => 'clients/list',
+                            'route' => 'clientes.index',
                             'icon' => 'fas fa-fw fa-list',
                         ],
                         [
