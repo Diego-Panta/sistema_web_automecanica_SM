@@ -46,56 +46,62 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($clientes as $cliente)
+                        @forelse($clientes as $cliente)
+                                <tr>
+                                    <td>{{ $cliente->id }}</td>
+                                    <td>{{ $cliente->nombre_completo }}</td>
+                                    <td>{{ $cliente->dni ?? 'N/A' }}</td>
+                                    <td>{{ $cliente->celular ?? 'N/A' }}</td>
+                                    <td>
+                                        @if ($cliente->estado)
+                                            @if ($cliente->estado->nombre_estado == 'Activo')
+                                                <span
+                                                    class="badge badge-success">{{ $cliente->estado->nombre_estado }}</span>
+                                            @elseif($cliente->estado->nombre_estado == 'Inactivo')
+                                                <span
+                                                    class="badge badge-danger">{{ $cliente->estado->nombre_estado }}</span>
+                                            @else
+                                                <span
+                                                    class="badge badge-{{ $cliente->estado->clase ?? 'warning' }}">{{ $cliente->estado->nombre_estado }}</span>
+                                            @endif
+                                        @else
+                                            <span class="badge badge-secondary">Sin estado</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">{{ $cliente->leads->count() }}</span>
+                                    </td>
+                                    <td width="160px">
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('clientes.show', $cliente) }}" class="btn btn-sm btn-info"
+                                                title="Ver">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('clientes.edit', $cliente) }}" class="btn btn-sm btn-warning"
+                                                title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @if ($cliente->estado && $cliente->estado->nombre_estado == 'Activo')
+                                                <button type="button" class="btn btn-sm btn-danger" title="Desactivar"
+                                                    onclick="setToggleData({{ $cliente->id }}, '{{ $cliente->nombre_completo }}', 'desactivar', {{ $cliente->leads->count() }})"
+                                                    data-toggle="modal" data-target="#toggleModal">
+                                                    <i class="fas fa-user-times"></i>
+                                                </button>
+                                            @else
+                                                <button type="button" class="btn btn-sm btn-success" title="Reestablecer"
+                                                    onclick="setToggleData({{ $cliente->id }}, '{{ $cliente->nombre_completo }}', 'reestablecer', {{ $cliente->leads->count() }})"
+                                                    data-toggle="modal" data-target="#toggleModal">
+                                                    <i class="fas fa-user-check"></i>
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                        @empty
                             <tr>
-                                <td>{{ $cliente->id }}</td>
-                                <td>{{ $cliente->nombre_completo }}</td>
-                                <td>{{ $cliente->dni ?? 'N/A' }}</td>
-                                <td>{{ $cliente->celular ?? 'N/A' }}</td>
-                                <td>
-                                    @if ($cliente->estado)
-                                        @if ($cliente->estado->nombre_estado == 'Activo')
-                                            <span class="badge badge-success">{{ $cliente->estado->nombre_estado }}</span>
-                                        @elseif($cliente->estado->nombre_estado == 'Inactivo')
-                                            <span class="badge badge-danger">{{ $cliente->estado->nombre_estado }}</span>
-                                        @else
-                                            <span
-                                                class="badge badge-{{ $cliente->estado->clase ?? 'warning' }}">{{ $cliente->estado->nombre_estado }}</span>
-                                        @endif
-                                    @else
-                                        <span class="badge badge-secondary">Sin estado</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <span class="badge badge-info">{{ $cliente->leads->count() }}</span>
-                                </td>
-                                <td width="160px">
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('clientes.show', $cliente) }}" class="btn btn-sm btn-info"
-                                            title="Ver">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('clientes.edit', $cliente) }}" class="btn btn-sm btn-warning"
-                                            title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        @if ($cliente->estado && $cliente->estado->nombre_estado == 'Activo')
-                                            <button type="button" class="btn btn-sm btn-danger" title="Desactivar"
-                                                onclick="setToggleData({{ $cliente->id }}, '{{ $cliente->nombre_completo }}', 'desactivar', {{ $cliente->leads->count() }})"
-                                                data-toggle="modal" data-target="#toggleModal">
-                                                <i class="fas fa-user-times"></i>
-                                            </button>
-                                        @else
-                                            <button type="button" class="btn btn-sm btn-success" title="Reestablecer"
-                                                onclick="setToggleData({{ $cliente->id }}, '{{ $cliente->nombre_completo }}', 'reestablecer', {{ $cliente->leads->count() }})"
-                                                data-toggle="modal" data-target="#toggleModal">
-                                                <i class="fas fa-user-check"></i>
-                                            </button>
-                                        @endif
-                                    </div>
-                                </td>
+                                <td colspan="8" class="text-center">No hay leads registrados</td>
                             </tr>
-                        @endforeach
+                        @endforelse
                     </tbody>
                 </table>
             </div>
