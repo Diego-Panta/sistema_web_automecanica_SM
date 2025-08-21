@@ -15,12 +15,12 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::create([
-        'name' => 'Ana García',
-        'email' => 'ana.garcia@empresa.com',
-        'password' => Hash::make('password123'),
+        'name' => 'Diego Panta',
+        'email' => 'diego.panta@empresa.com',
+        'password' => Hash::make('123'),
         'dni' => '87654321',
         'celular' => '912345678',
-        'email_personal' => 'ana.garcia@gmail.com',
+        'email_personal' => 'diego.panta@gmail.com',
         'fecha_nacimiento' => '1990-08-20',
         'direccion' => 'Calle Secundaria 456'
     ]);

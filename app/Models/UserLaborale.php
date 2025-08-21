@@ -10,8 +10,6 @@ class UserLaborale extends Model
 
     protected $fillable = [
         'user_id',
-        'turno_id',
-        'sede_id',
         'estado_user_id',
         'codigo_trabajador',
         'fecha_contratacion_inicio',
@@ -23,18 +21,37 @@ class UserLaborale extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function sede()
+    public function horarios()
     {
-        return $this->belongsTo(Sede::class);
-    }
-
-    public function turno()
-    {
-        return $this->belongsTo(Turno::class);
+        return $this->hasMany(UserHorario::class, 'user_laborale_id');
     }
 
     public function estado()
     {
         return $this->belongsTo(EstadoUser::class, 'estado_user_id');
+    }
+
+    // Método helper para obtener todas las sedes asignadas
+    public function sedes()
+    {
+        return $this->belongsToMany(Sede::class, 'user_horarios', 'user_laborale_id', 'sede_id')->distinct();
+    }
+
+    // Método helper para obtener todos los turnos asignados
+    public function turnos()
+    {
+        return $this->belongsToMany(Turno::class, 'user_horarios', 'user_laborale_id', 'turno_id')->distinct();
+    }
+
+    // Método helper para obtener horarios agrupados por sede
+    public function horariosPorSede()
+    {
+        return $this->horarios()->with(['sede', 'turno'])->get()->groupBy('sede_id');
+    }
+
+    // Método helper para obtener horarios de un día específico
+    public function horariosPorDia($dia)
+    {
+        return $this->horarios()->where('dia_semana', $dia)->with(['sede', 'turno'])->get();
     }
 }

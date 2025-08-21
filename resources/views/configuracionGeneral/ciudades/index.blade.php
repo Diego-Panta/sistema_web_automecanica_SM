@@ -1,12 +1,12 @@
 @extends('adminlte::page')
 
-@section('title', 'Sedes')
+@section('title', 'Ciudades')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Sedes</h1>
-        <a href="{{ route('locations.sedes.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus-circle"></i> Nueva Sede
+        <h1>Ciudades</h1>
+        <a href="{{ route('locations.ciudades.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Nueva Ciudad
         </a>
     </div>
 @stop
@@ -35,33 +35,29 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped table-hover" id="sedes-table">
+                <table class="table table-striped table-hover" id="ciudades-table">
                     <thead class="thead-dark">
                         <tr>
-                            <th>Código</th>
+                            <th>ID</th>
                             <th>Nombre</th>
-                            <th>Ciudad</th>
-                            <th>Dirección</th>
-                            <th>Capacidad</th>
+                            <th>Región</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($sedes as $sede)
+                        @foreach ($ciudades as $ciudad)
                             <tr>
-                                <td>{{ $sede->codigo_sede }}</td>
-                                <td>{{ $sede->nombre_sede }}</td>
-                                <td>{{ $sede->ciudad->nombre }}</td>
-                                <td>{{ Str::limit($sede->direccion, 30) }}</td>
-                                <td>{{ $sede->capacidad ?? 'N/A' }}</td>
+                                <td>{{ $ciudad->id }}</td>
+                                <td>{{ $ciudad->nombre }}</td>
+                                <td>{{ $ciudad->region ?? 'N/A' }}</td>
                                 <td width="120px">
-                                    <div class:: 'd-flex'>
-                                        <a href="{{ route('locations.sedes.edit', $sede) }}"
+                                    <div class="d-flex">
+                                        <a href="{{ route('locations.ciudades.edit', $ciudad) }}"
                                             class="btn btn-sm btn-warning mr-2">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="btn btn-sm btn-danger"
-                                            onclick="setDeleteData({{ $sede->id }}, '{{ $sede->nombre_sede }}')"
+                                            onclick="setDeleteData({{ $ciudad->id }}, '{{ $ciudad->nombre }}')"
                                             data-toggle="modal" data-target="#deleteModal">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -87,7 +83,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    ¿Estás seguro de eliminar la sede "<span id="sedeName"></span>"?
+                    ¿Estás seguro de eliminar la ciudad "<span id="ciudadName"></span>"?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -110,8 +106,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function setDeleteData(id, nombre) {
-            document.getElementById('sedeName').textContent = nombre;
-            document.getElementById('deleteForm').action = '{{ route('locations.sedes.destroy', '') }}/' + id;
+            document.getElementById('ciudadName').textContent = nombre;
+            document.getElementById('deleteForm').action = '{{ route('locations.ciudades.destroy', '') }}/' + id;
         }
     </script>
 @stop

@@ -554,7 +554,7 @@ return [
                             'submenu' => [
                                 [
                                     'text' => 'Estados',
-                                    'url' => 'clients/status',
+                                    'url' => 'clientes/status',
                                     'icon' => 'fas fa-fw fa-tags',
                                 ],
                             ],
@@ -584,39 +584,24 @@ return [
                     ],
                 ],
                 [
-                    'text' => 'Sedes y Turnos',
+                    'text' => 'Localidad y horarios',
                     'url' => 'locations',
                     'icon' => 'fas fa-fw fa-map-marker-alt',
                     'submenu' => [
                         [
+                            'text' => 'Ciudades',
+                            'url' => 'locations/ciudades',
+                            'icon' => 'fas fa-fw fa-city',
+                        ],
+                        [
                             'text' => 'Sedes',
                             'url' => 'locations/sedes',
                             'icon' => 'fas fa-fw fa-building',
-                            /*'submenu' => [
-                                [
-                                    'text' => 'Listado',
-                                    'url' => 'locations/sedes',
-                                ],
-                                [
-                                    'text' => 'Crear',
-                                    'url' => 'locations/sedes/create',
-                                ],
-                            ],*/
                         ],
                         [
                             'text' => 'Turnos',
                             'url' => 'locations/turnos',
                             'icon' => 'fas fa-fw fa-clock',
-                            /*'submenu' => [
-                                [
-                                    'text' => 'Listado',
-                                    'url' => 'locations/turnos',
-                                ],
-                                [
-                                    'text' => 'Crear',
-                                    'url' => 'locations/turnos/create',
-                                ],
-                            ],*/
                         ],
                     ],
                 ],

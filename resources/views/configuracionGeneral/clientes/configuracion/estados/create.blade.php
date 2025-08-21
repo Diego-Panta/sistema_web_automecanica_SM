@@ -9,7 +9,7 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            <form action="{{ route('clients.status.store') }}" method="POST">
+            <form action="{{ route('clientes.status.store') }}" method="POST">
                 @csrf
                 <div class="form-group">
                     <label for="nombre_estado">Nombre del Estado</label>
@@ -25,7 +25,7 @@
                 </div>
                 
                 <div class="d-flex justify-content-between">
-                    <a href="{{ route('clients.status') }}" class="btn btn-secondary">
+                    <a href="{{ route('clientes.status') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Regresar
                     </a>
                     <button type="submit" class="btn btn-primary">

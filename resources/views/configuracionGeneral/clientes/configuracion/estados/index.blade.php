@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <h1>Estados de Cliente</h1>
-        <a href="{{ route('clients.status.create') }}" class="btn btn-primary">
+        <a href="{{ route('clientes.status.create') }}" class="btn btn-primary">
             <i class="fas fa-plus-circle"></i> Nuevo Estado
         </a>
     </div>
@@ -51,7 +51,7 @@
                                 <td width="120px">
                                     <div class="d-flex">
                                         <!-- Botón Editar -->
-                                        <a href="{{ route('clients.status.edit', $estado) }}"
+                                        <a href="{{ route('clientes.status.edit', $estado) }}"
                                             class="btn btn-sm btn-warning mr-2">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -107,7 +107,7 @@
     <script>
         function setDeleteData(id, nombre) {
             document.getElementById('estadoName').textContent = nombre;
-            document.getElementById('deleteForm').action = '{{ route('clients.status.destroy', '') }}/' + id;
+            document.getElementById('deleteForm').action = '{{ route('clientes.status.destroy', '') }}/' + id;
         }
     </script>
 @stop

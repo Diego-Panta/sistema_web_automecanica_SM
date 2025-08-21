@@ -22,6 +22,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\CiudadeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -105,20 +106,21 @@ Route::prefix('leads')->group(function () {
 Route::prefix('clientes')->name('clientes.')->group(function () {
     Route::get('/', [ClienteController::class, 'index'])->name('index');
     Route::get('/crear', [ClienteController::class, 'create'])->name('create');
+    
+    // Estados - MOVER ANTES de las rutas con parámetros dinámicos
+    Route::get('/status', [EstadoClienteController::class, 'index'])->name('status');
+    Route::get('/status/create', [EstadoClienteController::class, 'create'])->name('status.create');
+    Route::post('/status', [EstadoClienteController::class, 'store'])->name('status.store');
+    Route::get('/status/{estado}/edit', [EstadoClienteController::class, 'edit'])->name('status.edit');
+    Route::put('/status/{estado}', [EstadoClienteController::class, 'update'])->name('status.update');
+    Route::delete('/status/{estado}', [EstadoClienteController::class, 'destroy'])->name('status.destroy');
+    
+    // Rutas de clientes con parámetros dinámicos - DESPUÉS
     Route::post('/', [ClienteController::class, 'store'])->name('store');
     Route::get('/{cliente}', [ClienteController::class, 'show'])->name('show');
     Route::get('/{cliente}/editar', [ClienteController::class, 'edit'])->name('edit');
     Route::put('/{cliente}', [ClienteController::class, 'update'])->name('update');
     Route::delete('/{cliente}', [ClienteController::class, 'destroy'])->name('destroy');
-
-    // Estados
-    Route::get('/status', [EstadoClienteController::class, 'index'])->name('clients.status');
-    Route::get('/status/create', [EstadoClienteController::class, 'create'])->name('clients.status.create');
-    Route::post('/status', [EstadoClienteController::class, 'store'])->name('clients.status.store');
-    Route::get('/status/{estado}/edit', [EstadoClienteController::class, 'edit'])->name('clients.status.edit');
-    Route::put('/status/{estado}', [EstadoClienteController::class, 'update'])->name('clients.status.update');
-    Route::delete('/status/{estado}', [EstadoClienteController::class, 'destroy'])->name('clients.status.destroy');
-
 });
 
 Route::prefix('users')->group(function () {
@@ -167,6 +169,13 @@ Route::prefix('users')->group(function () {
 });
 
 Route::prefix('locations')->group(function () {
+
+    Route::get('/ciudades', [CiudadeController::class, 'index'])->name('locations.ciudades');
+    Route::get('/ciudades/create', [CiudadeController::class, 'create'])->name('locations.ciudades.create');
+    Route::post('/ciudades', [CiudadeController::class, 'store'])->name('locations.ciudades.store');
+    Route::get('/ciudades/{ciudad}/edit', [CiudadeController::class, 'edit'])->name('locations.ciudades.edit');
+    Route::put('/ciudades/{ciudad}', [CiudadeController::class, 'update'])->name('locations.ciudades.update');
+    Route::delete('/ciudades/{ciudad}', [CiudadeController::class, 'destroy'])->name('locations.ciudades.destroy');
 
     Route::get('/sedes', [SedeController::class, 'index'])->name('locations.sedes');
     Route::get('/sedes/create', [SedeController::class, 'create'])->name('locations.sedes.create');

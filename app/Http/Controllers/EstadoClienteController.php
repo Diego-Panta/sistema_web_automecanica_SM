@@ -40,12 +40,12 @@ class EstadoClienteController extends Controller
 
             DB::commit();
 
-            return redirect()->route('clients.status')
+            return redirect()->route('clientes.status')
                 ->with('success', 'Estado de cliente creado exitosamente');
         } catch (Throwable $e) {
             DB::rollBack();
             Log::error("Error al crear estado de cliente", ['error' => $e]);
-            return redirect()->route('clients.status')
+            return redirect()->route('clientes.status')
                 ->with('error', 'Error al crear el estado de cliente');
         }
     }
@@ -78,12 +78,12 @@ class EstadoClienteController extends Controller
 
             DB::commit();
 
-            return redirect()->route('clients.status')
+            return redirect()->route('clientes.status')
                 ->with('success', 'Estado de cliente actualizado exitosamente');
         } catch (Throwable $e) {
             DB::rollBack();
             Log::error("Error al actualizar estado de cliente", ['error' => $e]);
-            return redirect()->route('clients.status')
+            return redirect()->route('clientes.status')
                 ->with('error', 'Error al actualizar el estado de cliente');
         }
     }
@@ -91,22 +91,21 @@ class EstadoClienteController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($estado_id)
+    public function destroy(EstadoCliente $estado)
     {
         try {
             DB::beginTransaction();
 
-            $estadoCliente = EstadoCliente::findOrFail($estado_id);
-            $estadoCliente->delete();
+            $estado->delete();
 
             DB::commit();
 
-            return redirect()->route('clients.status')
+            return redirect()->route('clientes.status')
                 ->with('success', 'Estado de cliente eliminado exitosamente');
         } catch (Throwable $e) {
             DB::rollBack();
             Log::error("Error al eliminar el estado de cliente", ['error' => $e->getMessage()]);
-            return redirect()->route('clients.status')
+            return redirect()->route('clientes.status')
                 ->with('error', 'Error al eliminar el estado de cliente: ' . $e->getMessage());
         }
     }

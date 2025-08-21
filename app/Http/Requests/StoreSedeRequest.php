@@ -30,7 +30,7 @@ class StoreSedeRequest extends FormRequest
                 Rule::unique('sedes', 'codigo_sede')
             ],
             'nombre_sede' => 'required|string|max:255',
-            'ciudad' => 'required|string|max:100',
+            'ciudad_id' => 'required|exists:ciudades,id',
             'direccion' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'capacidad' => 'nullable|integer|min:1'
@@ -47,9 +47,8 @@ class StoreSedeRequest extends FormRequest
             'nombre_sede.required' => 'El nombre de la sede es obligatorio.',
             'nombre_sede.string' => 'El nombre debe ser texto.',
             'nombre_sede.max' => 'El nombre no puede exceder 255 caracteres.',
-            'ciudad.required' => 'La ciudad es obligatoria.',
-            'ciudad.string' => 'La ciudad debe ser texto.',
-            'ciudad.max' => 'La ciudad no puede exceder 100 caracteres.',
+            'ciudad_id.required' => 'La ciudad es obligatoria.',
+            'ciudad_id.exists' => 'La ciudad seleccionada no es válida.',
             'direccion.required' => 'La dirección es obligatoria.',
             'direccion.string' => 'La dirección debe ser texto.',
             'direccion.max' => 'La dirección no puede exceder 255 caracteres.',
@@ -64,7 +63,7 @@ class StoreSedeRequest extends FormRequest
         return [
             'codigo_sede' => 'código de sede',
             'nombre_sede' => 'nombre de la sede',
-            'ciudad' => 'ciudad',
+            'ciudad_id' => 'ciudad',
             'direccion' => 'dirección',
             'descripcion' => 'descripción',
             'capacidad' => 'capacidad'

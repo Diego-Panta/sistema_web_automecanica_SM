@@ -12,24 +12,23 @@
 @stop
 
 @section('content')
+    <!-- Eliminar el script inline y reemplazar con esto -->
     @if (session('success'))
-        <script>
-            const Toast = Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                }
-            });
-            Toast.fire({
-                icon: "success",
-                title: "{{ session('success') }}"
-            });
-        </script>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>¡Éxito!</strong> {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>¡Error!</strong> {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     @endif
 
     <div class="card">
@@ -43,6 +42,8 @@
                             <th>Email</th>
                             <th>DNI</th>
                             <th>Celular</th>
+                            <th>Código Trabajador</th>
+                            <th>Estado</th>
                             <th>Roles</th>
                             <th>Acciones</th>
                         </tr>
@@ -55,6 +56,14 @@
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->dni ?? 'N/A' }}</td>
                                 <td>{{ $user->celular }}</td>
+                                <td>{{ $user->laborale->codigo_trabajador ?? 'N/A' }}</td>
+                                <td>
+                                    @if($user->laborale && $user->laborale->estado)
+                                        <span class="badge badge-success">{{ $user->laborale->estado->nombre_estado }}</span>
+                                    @else
+                                        <span class="badge badge-secondary">Sin estado</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @forelse($user->roles as $role)
                                         <span class="badge bg-primary">{{ $role->name }}</span>
@@ -62,19 +71,31 @@
                                         <span class="badge bg-secondary">Sin roles</span>
                                     @endforelse
                                 </td>
-                                <td width="140px">
+                                <td width="180px">
                                     <div class="d-flex flex-wrap gap-1">
-                                        <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-warning mr-1">
+                                        <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-warning mr-1" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-danger mr-1"
-                                            onclick="setDeleteData({{ $user->id }}, '{{ $user->name }}')"
-                                            data-toggle="modal" data-target="#deleteModal">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-info"
+                                        @if($user->laborale && $user->laborale->estado && $user->laborale->estado->nombre_estado == 'Activo')
+                                            <button type="button" class="btn btn-sm btn-danger mr-1" title="Desactivar"
+                                                onclick="setToggleData({{ $user->id }}, '{{ $user->name }}', 'desactivar')"
+                                                data-toggle="modal" data-target="#toggleModal">
+                                                <i class="fas fa-user-times"></i>
+                                            </button>
+                                        @else
+                                            <button type="button" class="btn btn-sm btn-success mr-1" title="Reestablecer"
+                                                onclick="setToggleData({{ $user->id }}, '{{ $user->name }}', 'reestablecer')"
+                                                data-toggle="modal" data-target="#toggleModal">
+                                                <i class="fas fa-user-check"></i>
+                                            </button>
+                                        @endif
+                                        <button type="button" class="btn btn-sm btn-info mr-1" title="Ver datos laborales"
                                             onclick='showLaboralModal(@json($user))'>
                                             <i class="fas fa-briefcase"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-secondary" title="Ver horarios"
+                                            onclick='showHorariosModal(@json($user))'>
+                                            <i class="fas fa-clock"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -86,26 +107,26 @@
         </div>
     </div>
 
-    <!-- Modal de eliminación -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+    <!-- Modal de confirmación para activar/desactivar -->
+    <div class="modal fade" id="toggleModal" tabindex="-1" role="dialog" aria-labelledby="toggleModalLabel"
         aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                <div class="modal-header" id="toggleModalHeader">
+                    <h5 class="modal-title" id="toggleModalLabel">Confirmar Acción</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" tabindex="-1">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    ¿Estás seguro de eliminar al usuario "<span id="userName"></span>"?
+                    <span id="toggleMessage"></span>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <form id="deleteForm" method="POST">
+                    <form id="toggleForm" method="POST">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Confirmar Eliminación</button>
+                        <button type="submit" class="btn" id="toggleConfirmBtn">Confirmar</button>
                     </form>
                 </div>
             </div>
@@ -131,12 +152,6 @@
                         <dt class="col-sm-4">Código de Trabajador</dt>
                         <dd class="col-sm-8" id="modal-codigo"></dd>
 
-                        <dt class="col-sm-4">Sede</dt>
-                        <dd class="col-sm-8" id="modal-sede"></dd>
-
-                        <dt class="col-sm-4">Turno</dt>
-                        <dd class="col-sm-8" id="modal-turno"></dd>
-
                         <dt class="col-sm-4">Estado</dt>
                         <dd class="col-sm-8" id="modal-estado"></dd>
 
@@ -153,6 +168,44 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal: Horarios del Usuario -->
+    <div class="modal fade" id="horariosModal" tabindex="-1" role="dialog" aria-labelledby="horariosModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="horariosModalLabel">Horarios del Usuario</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="mb-3">Usuario: <span id="horarios-usuario-nombre"></span></h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Día</th>
+                                    <th>Sede</th>
+                                    <th>Turno</th>
+                                </tr>
+                            </thead>
+                            <tbody id="horarios-tbody">
+                                <!-- Los horarios se cargarán aquí dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="no-horarios" class="alert alert-info" style="display: none;">
+                        <i class="fas fa-info-circle"></i> Este usuario no tiene horarios asignados.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('css')
@@ -162,10 +215,58 @@
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function setDeleteData(id, nombre) {
-            document.getElementById('userName').textContent = nombre;
-            document.getElementById('deleteForm').action = '{{ route('users.destroy', '') }}/' + id;
+        // Mostrar alertas SweetAlert2 si hay mensajes de sesión
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '{{ session('success') }}',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: '{{ session('error') }}',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true
+            });
+        @endif
+    </script>
+    <script>
+        //Se repite con cliente
+        function setToggleData(id, nombre, action) {
+            const modal = document.getElementById('toggleModal');
+            const header = document.getElementById('toggleModalHeader');
+            const message = document.getElementById('toggleMessage');
+            const confirmBtn = document.getElementById('toggleConfirmBtn');
+            const form = document.getElementById('toggleForm');
+            
+            // Configurar el formulario
+            form.action = '{{ route('users.destroy', '') }}/' + id;
+            
+            if (action === 'desactivar') {
+                header.className = 'modal-header bg-warning text-dark';
+                message.innerHTML = `¿Estás seguro de <strong>desactivar</strong> al usuario "<strong>${nombre}</strong>"?<br><small class="text-muted">El usuario no podrá acceder al sistema pero conservará todos sus datos.</small>`;
+                confirmBtn.className = 'btn btn-warning';
+                confirmBtn.textContent = 'Desactivar Usuario';
+            } else {
+                header.className = 'modal-header bg-success text-white';
+                message.innerHTML = `¿Estás seguro de <strong>reestablecer</strong> al usuario "<strong>${nombre}</strong>"?<br><small class="text-muted">El usuario podrá acceder nuevamente al sistema.</small>`;
+                confirmBtn.className = 'btn btn-success';
+                confirmBtn.textContent = 'Reestablecer Usuario';
+            }
         }
+        /////////////////////////////////////////////////////////
 
         // Inicializar DataTable
         $(document).ready(function() {
@@ -177,23 +278,57 @@
                 }
             });
         });
-    </script>
-    <script>
+
         function showLaboralModal(user) {
             const laboral = user.laborale || {};
             const estado = laboral.estado || {};
-            const sede = laboral.sede || {};
-            const turno = laboral.turno || {};
 
             document.getElementById('modal-nombre').textContent = user.name || 'N/A';
             document.getElementById('modal-codigo').textContent = laboral.codigo_trabajador || 'N/A';
-            document.getElementById('modal-sede').textContent = sede.nombre_sede || 'N/A';
-            document.getElementById('modal-turno').textContent = turno.nombre_turno || 'N/A';
             document.getElementById('modal-estado').textContent = estado.nombre_estado || 'N/A';
             document.getElementById('modal-inicio').textContent = laboral.fecha_contratacion_inicio || 'N/A';
             document.getElementById('modal-fin').textContent = laboral.fecha_contratacion_fin || 'N/A';
 
             $('#laboralModal').modal('show');
+        }
+
+        function showHorariosModal(user) {
+            const diasSemana = {
+                'lunes': 'Lunes',
+                'martes': 'Martes',
+                'miercoles': 'Miércoles',
+                'jueves': 'Jueves',
+                'viernes': 'Viernes',
+                'sabado': 'Sábado',
+                'domingo': 'Domingo'
+            };
+
+            document.getElementById('horarios-usuario-nombre').textContent = user.name || 'N/A';
+            const tbody = document.getElementById('horarios-tbody');
+            const noHorarios = document.getElementById('no-horarios');
+            
+            // Limpiar contenido anterior
+            tbody.innerHTML = '';
+            
+            const horarios = user.laborale && user.laborale.horarios ? user.laborale.horarios : [];
+            
+            if (horarios.length > 0) {
+                noHorarios.style.display = 'none';
+                
+                horarios.forEach(horario => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${diasSemana[horario.dia_semana] || horario.dia_semana}</td>
+                        <td>${horario.sede ? horario.sede.nombre_sede : 'N/A'}</td>
+                        <td>${horario.turno ? horario.turno.nombre_turno : 'N/A'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                noHorarios.style.display = 'block';
+            }
+            
+            $('#horariosModal').modal('show');
         }
     </script>
 @stop

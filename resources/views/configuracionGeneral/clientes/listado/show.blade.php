@@ -3,13 +3,13 @@
 @section('title', 'Detalles del Cliente: ' . $cliente->nombre_completo)
 
 @section('content_header')
-    <h1>Detalles del Cliente: {{ $cliente->nombre_completo }}</h1>
-    <div class="d-flex justify-content-between">
-        <a href="{{ route('clientes.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Volver al listado
-        </a>
-        <div>
-            <a href="{{ route('clientes.edit', $cliente) }}" class="btn btn-primary">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Detalles del Cliente: {{ $cliente->nombre_completo }}</h1>
+        <div class="d-flex">
+            <a href="{{ route('clientes.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al listado
+            </a>
+            <a href="{{ route('clientes.edit', $cliente) }}" class="btn btn-primary ml-2">
                 <i class="fas fa-edit"></i> Editar
             </a>
         </div>
@@ -31,7 +31,7 @@
                 <div class="col-md-6">
                     <h5>Información de Contacto</h5>
                     <hr>
-                    <p><strong>Estado:</strong> 
+                    <p><strong>Estado:</strong>
                         <span class="badge badge-{{ $cliente->estado->clase ?? 'secondary' }}">
                             {{ $cliente->estado->nombre_estado }}
                         </span>
@@ -45,7 +45,7 @@
             <div class="mt-4">
                 <h5>Leads Asociados</h5>
                 <hr>
-                @if($cliente->leads->count() > 0)
+                @if ($cliente->leads->count() > 0)
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
@@ -58,7 +58,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($cliente->leads as $lead)
+                                @foreach ($cliente->leads as $lead)
                                     <tr>
                                         <td>{{ $lead->id }}</td>
                                         <td>{{ $lead->tipo->nombre_tipo }}</td>

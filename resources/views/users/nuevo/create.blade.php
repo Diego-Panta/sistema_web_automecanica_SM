@@ -9,7 +9,7 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            <form action="{{ route('users.store') }}" method="POST">
+            <form action="{{ route('users.store') }}" method="POST" id="userForm">
                 @csrf
                 
                 <div class="row">
@@ -104,47 +104,6 @@
                             @enderror
                         </div>
                         
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="sede_id">Sede</label>
-                                    <select name="sede_id" id="sede_id" 
-                                            class="form-control @error('sede_id') is-invalid @enderror">
-                                        <option value="">Seleccione una sede</option>
-                                        @foreach($sedes as $sede)
-                                            <option value="{{ $sede->id }}" {{ old('sede_id') == $sede->id ? 'selected' : '' }}>
-                                                {{ $sede->nombre_sede }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('sede_id')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="turno_id">Turno</label>
-                                    <select name="turno_id" id="turno_id" 
-                                            class="form-control @error('turno_id') is-invalid @enderror">
-                                        <option value="">Seleccione un turno</option>
-                                        @foreach($turnos as $turno)
-                                            <option value="{{ $turno->id }}" {{ old('turno_id') == $turno->id ? 'selected' : '' }}>
-                                                {{ $turno->nombre_turno }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('turno_id')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                        
                         <div class="form-group">
                             <label for="estado_user_id">Estado</label>
                             <select name="estado_user_id" id="estado_user_id" 
@@ -194,6 +153,92 @@
                     </div>
                 </div>
                 
+                <!-- Sección de Asignación de Horarios -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Asignación de Horarios</h4>
+                                <small class="text-muted">Configure los horarios y sedes para cada día de la semana</small>
+                            </div>
+                            <div class="card-body">
+                                <button type="button" class="btn btn-success mb-3" id="addHorario">
+                                    <i class="fas fa-plus"></i> Añadir Asignación
+                                </button>
+                                
+                                <div id="horariosContainer">
+                                    @if(old('horarios'))
+                                        @foreach(old('horarios') as $index => $horario)
+                                            <div class="horario-item card mb-3" data-index="{{ $index }}">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label>Sede*</label>
+                                                                <select name="horarios[{{ $index }}][sede_id]" class="form-control @error('horarios.'.$index.'.sede_id') is-invalid @enderror" required>
+                                                                    <option value="">Seleccione una sede</option>
+                                                                    @foreach($sedes as $sede)
+                                                                        <option value="{{ $sede->id }}" {{ $horario['sede_id'] == $sede->id ? 'selected' : '' }}>
+                                                                            {{ $sede->nombre_sede }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                                @error('horarios.'.$index.'.sede_id')
+                                                                    <span class="invalid-feedback">{{ $message }}</span>
+                                                                @enderror
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label>Día de la Semana*</label>
+                                                                <select name="horarios[{{ $index }}][dia_semana]" class="form-control @error('horarios.'.$index.'.dia_semana') is-invalid @enderror" required>
+                                                                    <option value="">Seleccione un día</option>
+                                                                    @foreach($diasSemana as $key => $dia)
+                                                                        <option value="{{ $key }}" {{ $horario['dia_semana'] == $key ? 'selected' : '' }}>
+                                                                            {{ $dia }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                                @error('horarios.'.$index.'.dia_semana')
+                                                                    <span class="invalid-feedback">{{ $message }}</span>
+                                                                @enderror
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label>Turno*</label>
+                                                                <select name="horarios[{{ $index }}][turno_id]" class="form-control @error('horarios.'.$index.'.turno_id') is-invalid @enderror" required>
+                                                                    <option value="">Seleccione un turno</option>
+                                                                    @foreach($turnos as $turno)
+                                                                        <option value="{{ $turno->id }}" {{ $horario['turno_id'] == $turno->id ? 'selected' : '' }}>
+                                                                            {{ $turno->nombre_turno }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                                @error('horarios.'.$index.'.turno_id')
+                                                                    <span class="invalid-feedback">{{ $message }}</span>
+                                                                @enderror
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label>&nbsp;</label>
+                                                                <button type="button" class="btn btn-danger btn-block remove-horario">
+                                                                    <i class="fas fa-trash"></i> Eliminar
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="row mt-4">
                     <div class="col-md-6">
                         <h4 class="mb-4">Información Adicional</h4>
@@ -235,7 +280,8 @@
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" 
                                                    name="roles[]" value="{{ $role->id }}" 
-                                                   id="role_{{ $role->id }}">
+                                                   id="role_{{ $role->id }}"
+                                                   {{ is_array(old('roles')) && in_array($role->id, old('roles')) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="role_{{ $role->id }}">
                                                 {{ $role->name }}
                                             </label>
@@ -291,6 +337,80 @@
 
 @section('js')
     <script>
+        let horarioIndex = {{ old('horarios') ? count(old('horarios')) : 0 }};
+
+        // Plantilla para nuevas asignaciones de horario
+        function getHorarioTemplate(index) {
+            return `
+                <div class="horario-item card mb-3" data-index="${index}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Sede*</label>
+                                    <select name="horarios[${index}][sede_id]" class="form-control" required>
+                                        <option value="">Seleccione una sede</option>
+                                        @foreach($sedes as $sede)
+                                            <option value="{{ $sede->id }}">{{ $sede->nombre_sede }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Día de la Semana*</label>
+                                    <select name="horarios[${index}][dia_semana]" class="form-control" required>
+                                        <option value="">Seleccione un día</option>
+                                        @foreach($diasSemana as $key => $dia)
+                                            <option value="{{ $key }}">{{ $dia }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Turno*</label>
+                                    <select name="horarios[${index}][turno_id]" class="form-control" required>
+                                        <option value="">Seleccione un turno</option>
+                                        @foreach($turnos as $turno)
+                                            <option value="{{ $turno->id }}">{{ $turno->nombre_turno }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn btn-danger btn-block remove-horario">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Añadir nueva asignación de horario
+        document.getElementById('addHorario').addEventListener('click', function() {
+            const container = document.getElementById('horariosContainer');
+            const template = getHorarioTemplate(horarioIndex);
+            container.insertAdjacentHTML('beforeend', template);
+            horarioIndex++;
+        });
+
+        // Eliminar asignación de horario
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-horario') || e.target.closest('.remove-horario')) {
+                e.preventDefault();
+                const horarioItem = e.target.closest('.horario-item');
+                if (horarioItem) {
+                    horarioItem.remove();
+                }
+            }
+        });
+
         // Validación de DNI (8 dígitos)
         document.getElementById('dni').addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);

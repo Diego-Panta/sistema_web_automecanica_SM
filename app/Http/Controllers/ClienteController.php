@@ -108,17 +108,44 @@ class ClienteController extends Controller
         try {
             DB::beginTransaction();
 
-            $cliente->delete();
+            // Obtener los estados activo e inactivo
+            $estadoActivo = EstadoCliente::where('nombre_estado', 'Activo')->first();
+            $estadoInactivo = EstadoCliente::where('nombre_estado', 'Inactivo')->first();
+
+            if (!$estadoActivo || !$estadoInactivo) {
+                throw new \Exception('No se encontraron los estados Activo/Inactivo en el sistema.');
+            }
+
+            // Determinar el nuevo estado
+            $estadoActual = $cliente->estado_cliente_id;
+            $nuevoEstado = ($estadoActual == $estadoActivo->id) ? $estadoInactivo->id : $estadoActivo->id;
+
+            // Actualizar el estado del cliente
+            $cliente->update(['estado_cliente_id' => $nuevoEstado]);
+
+            // Determinar el mensaje según el nuevo estado
+            $message = ($nuevoEstado == $estadoActivo->id) ? 'Cliente reestablecido exitosamente' : 'Cliente desactivado exitosamente';
+            $action = ($nuevoEstado == $estadoActivo->id) ? 'reestablecido' : 'desactivado';
 
             DB::commit();
 
+            /*Log::info("Cliente {$action}", [
+            'cliente_id' => $cliente->id,
+            'cliente_name' => $cliente->nombre_completo,
+            'nuevo_estado' => $nuevoEstado,
+            'action_by' => auth()->id()
+        ]);*/
+
             return redirect()->route('clientes.index')
-                ->with('success', 'Cliente eliminado exitosamente');
-        } catch (Throwable $e) {
+                ->with('success', $message);
+        } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Error al eliminar cliente", ['error' => $e]);
+            Log::error("Error al cambiar estado del cliente", [
+                'cliente_id' => $cliente->id,
+                'error' => $e->getMessage()
+            ]);
             return redirect()->route('clientes.index')
-                ->with('error', 'Error al eliminar el cliente');
+                ->with('error', 'Error al cambiar el estado del cliente: ' . $e->getMessage());
         }
     }
 }

@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('sedes', function (Blueprint $table) {
             $table->id();
             $table->string('codigo_sede', 50)->unique();
+            $table->foreignId('ciudad_id')->constrained('ciudades')->cascadeOnDelete();
             $table->string('nombre_sede', 255);
-            $table->string('ciudad', 100);
             $table->string('direccion', 255);
             $table->text('descripcion')->nullable();
             $table->integer('capacidad')->nullable();

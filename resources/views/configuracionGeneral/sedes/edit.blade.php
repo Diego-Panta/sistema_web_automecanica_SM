@@ -45,11 +45,18 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="ciudad">Ciudad*</label>
-                            <input type="text" name="ciudad" id="ciudad" 
-                                   class="form-control @error('ciudad') is-invalid @enderror" 
-                                   value="{{ old('ciudad', $sede->ciudad) }}" required>
-                            @error('ciudad')
+                            <label for="ciudad_id">Ciudad*</label>
+                            <select name="ciudad_id" id="ciudad_id" 
+                                    class="form-control @error('ciudad_id') is-invalid @enderror" required>
+                                <option value="">Seleccione una ciudad</option>
+                                @foreach($ciudades as $ciudad)
+                                    <option value="{{ $ciudad->id }}" 
+                                        {{ (old('ciudad_id', $sede->ciudad_id) == $ciudad->id) ? 'selected' : '' }}>
+                                        {{ $ciudad->nombre }} @if($ciudad->region) - {{ $ciudad->region }} @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('ciudad_id')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>

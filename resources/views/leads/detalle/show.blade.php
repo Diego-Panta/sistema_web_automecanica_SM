@@ -38,18 +38,18 @@
                             </p>
                             <p><strong>Estado:</strong> 
                                 <span class="badge badge-{{ $lead->estadoActual->clase ?? 'secondary' }}">
-                                    {{ $lead->estadoActual->nombre }}
+                                    {{ $lead->estadoActual->nombre_estado }}
                                 </span>
                             </p>
                             <p><strong>Resultado:</strong> 
-                                {{ $lead->resultado->nombre ?? 'N/A' }}
+                                {{ $lead->resultado->nombre_resultado ?? 'N/A' }}
                             </p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Canal:</strong> {{ $lead->canal->nombre }}</p>
-                            <p><strong>Medio Contacto:</strong> {{ $lead->medioContacto->nombre }}</p>
-                            <p><strong>Forma Registro:</strong> {{ $lead->formaRegistro->nombre }}</p>
-                            <p><strong>Modelo:</strong> {{ $lead->modeloVehiculo->nombre ?? 'N/A' }}</p>
+                            <p><strong>Canal:</strong> {{ $lead->canal->nombre_canal }}</p>
+                            <p><strong>Medio Contacto:</strong> {{ $lead->medioContacto->nombre_medio }}</p>
+                            <p><strong>Forma Registro:</strong> {{ $lead->formaRegistro->nombre_forma }}</p>
+                            <p><strong>Modelo:</strong> {{ $lead->modeloVehiculo->nombre_modelo ?? 'N/A' }}</p>
                         </div>
                     </div>
                     

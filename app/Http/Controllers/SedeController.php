@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Sede;
+use App\Models\Ciudade;
 use App\Http\Requests\StoreSedeRequest;
 use App\Http\Requests\UpdateSedeRequest;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class SedeController extends Controller
      */
     public function index()
     {
-        $sedes = Sede::latest()->get();
+        $sedes = Sede::with('ciudad')->latest()->get();
         return view('configuracionGeneral.sedes.index', compact('sedes'));
     }
 
@@ -26,7 +27,8 @@ class SedeController extends Controller
      */
     public function create()
     {
-        return view('configuracionGeneral.sedes.create');
+        $ciudades = Ciudade::orderBy('nombre')->get();
+        return view('configuracionGeneral.sedes.create', compact('ciudades'));
     }
 
     /**
@@ -64,7 +66,8 @@ class SedeController extends Controller
      */
     public function edit(Sede $sede)
     {
-        return view('configuracionGeneral.sedes.edit', ['sede' => $sede]);
+        $ciudades = Ciudade::orderBy('nombre')->get();
+        return view('configuracionGeneral.sedes.edit', compact('sede', 'ciudades'));
     }
 
     /**
@@ -92,24 +95,27 @@ class SedeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($sede_id)
+    public function destroy(Sede $sede)
     {
         try {
             DB::beginTransaction();
 
-            $sede = Sede::findOrFail($sede_id);
+            // Verificar si hay horarios o configuraciones asociadas
+            if ($sede->horarios()->exists() || $sede->configuracionesAsignacion()->exists()) {
+                throw new \Exception('No se puede eliminar la sede porque tiene registros asociados.');
+            }
+
             $sede->delete();
 
             DB::commit();
 
             return redirect()->route('locations.sedes')
                 ->with('success', 'Sede eliminada exitosamente');
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error al eliminar la sede", ['error' => $e->getMessage()]);
             return redirect()->route('locations.sedes')
                 ->with('error', 'Error al eliminar la sede: ' . $e->getMessage());
         }
     }
-    
 }

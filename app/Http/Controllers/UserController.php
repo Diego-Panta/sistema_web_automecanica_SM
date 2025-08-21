@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Turno;
 use App\Models\Sede;
 use App\Models\EstadoUser;
+use App\Models\UserHorario;
 use Spatie\Permission\Models\Role;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -21,10 +22,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['laborale.sede', 'laborale.turno', 'laborale.estado', 'roles'])
-                    ->latest()
-                    ->get();
-        
+        $users = User::with(['laborale.horarios.sede', 'laborale.horarios.turno', 'laborale.estado', 'roles'])
+            ->latest()
+            ->get();
+
         return view('users.listado.index', compact('users'));
     }
 
@@ -37,8 +38,19 @@ class UserController extends Controller
         $sedes = Sede::orderBy('nombre_sede')->get();
         $estados = EstadoUser::orderBy('nombre_estado')->get();
         $roles = Role::orderBy('name')->get();
-        
-        return view('users.nuevo.create', compact('turnos', 'sedes', 'estados', 'roles'));
+
+        // Días de la semana para el formulario
+        $diasSemana = [
+            'lunes' => 'Lunes',
+            'martes' => 'Martes',
+            'miercoles' => 'Miércoles',
+            'jueves' => 'Jueves',
+            'viernes' => 'Viernes',
+            'sabado' => 'Sábado',
+            'domingo' => 'Domingo'
+        ];
+
+        return view('users.nuevo.create', compact('turnos', 'sedes', 'estados', 'roles', 'diasSemana'));
     }
 
     /**
@@ -63,14 +75,26 @@ class UserController extends Controller
             ]);
 
             // Crear datos laborales
-            $user->laborale()->create([
-                'turno_id' => $request->turno_id,
-                'sede_id' => $request->sede_id,
+            $userLaborale = $user->laborale()->create([
                 'estado_user_id' => $request->estado_user_id,
                 'codigo_trabajador' => $request->codigo_trabajador,
                 'fecha_contratacion_inicio' => $request->fecha_contratacion_inicio,
                 'fecha_contratacion_fin' => $request->fecha_contratacion_fin,
             ]);
+
+            // Crear horarios si se proporcionaron
+            if ($request->has('horarios') && is_array($request->horarios)) {
+                foreach ($request->horarios as $horario) {
+                    if (isset($horario['sede_id']) && isset($horario['dia_semana']) && isset($horario['turno_id'])) {
+                        UserHorario::create([
+                            'user_laborale_id' => $userLaborale->id,
+                            'sede_id' => $horario['sede_id'],
+                            'dia_semana' => $horario['dia_semana'],
+                            'turno_id' => $horario['turno_id'],
+                        ]);
+                    }
+                }
+            }
 
             // Asignar roles
             if ($request->has('roles')) {
@@ -103,19 +127,31 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $user->load('laborale', 'roles');
-        
+        $user->load('laborale.horarios', 'roles');
+
         $turnos = Turno::orderBy('nombre_turno')->get();
         $sedes = Sede::orderBy('nombre_sede')->get();
         $estados = EstadoUser::orderBy('nombre_estado')->get();
         $roles = Role::orderBy('name')->get();
-        
+
+        // Días de la semana para el formulario
+        $diasSemana = [
+            'lunes' => 'Lunes',
+            'martes' => 'Martes',
+            'miercoles' => 'Miércoles',
+            'jueves' => 'Jueves',
+            'viernes' => 'Viernes',
+            'sabado' => 'Sábado',
+            'domingo' => 'Domingo'
+        ];
+
         return view('users.nuevo.edit', [
             'user' => $user,
             'turnos' => $turnos,
             'sedes' => $sedes,
             'estados' => $estados,
-            'roles' => $roles
+            'roles' => $roles,
+            'diasSemana' => $diasSemana
         ]);
     }
 
@@ -147,17 +183,32 @@ class UserController extends Controller
             $user->update($userData);
 
             // Actualizar datos laborales
-            $user->laborale()->updateOrCreate(
+            $userLaborale = $user->laborale()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'turno_id' => $request->turno_id,
-                    'sede_id' => $request->sede_id,
                     'estado_user_id' => $request->estado_user_id,
                     'codigo_trabajador' => $request->codigo_trabajador,
                     'fecha_contratacion_inicio' => $request->fecha_contratacion_inicio,
                     'fecha_contratacion_fin' => $request->fecha_contratacion_fin,
                 ]
             );
+
+            // Eliminar horarios existentes
+            $userLaborale->horarios()->delete();
+
+            // Crear nuevos horarios
+            if ($request->has('horarios') && is_array($request->horarios)) {
+                foreach ($request->horarios as $horario) {
+                    if (isset($horario['sede_id']) && isset($horario['dia_semana']) && isset($horario['turno_id'])) {
+                        UserHorario::create([
+                            'user_laborale_id' => $userLaborale->id,
+                            'sede_id' => $horario['sede_id'],
+                            'dia_semana' => $horario['dia_semana'],
+                            'turno_id' => $horario['turno_id'],
+                        ]);
+                    }
+                }
+            }
 
             // Sincronizar roles
             $user->roles()->sync($request->roles ?? []);
@@ -183,26 +234,49 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
 
-            // Verificar si hay leads asociados
-            if ($user->leadCreados()->exists() || $user->asignacionesRecibidas()->exists()) {
-                throw new \Exception('No se puede eliminar el usuario porque tiene leads asociados.');
+            // Verificar si el usuario tiene datos laborales
+            if (!$user->laborale) {
+                throw new \Exception('El usuario no tiene datos laborales asignados.');
             }
 
-            // Eliminar datos laborales primero
-            $user->laborale()->delete();
-            
-            // Eliminar usuario
-            $user->delete();
+            // Obtener el estado actual del usuario
+            $estadoActivo = EstadoUser::where('nombre_estado', 'Activo')->first();
+            $estadoInactivo = EstadoUser::where('nombre_estado', 'Inactivo')->first();
+
+            if (!$estadoActivo || !$estadoInactivo) {
+                throw new \Exception('No se encontraron los estados Activo/Inactivo en el sistema.');
+            }
+
+            // Determinar el nuevo estado
+            $estadoActual = $user->laborale->estado_user_id;
+            $nuevoEstado = ($estadoActual == $estadoActivo->id) ? $estadoInactivo->id : $estadoActivo->id;
+
+            // Actualizar el estado del usuario
+            $user->laborale->update(['estado_user_id' => $nuevoEstado]);
+
+            // Determinar el mensaje según el nuevo estado
+            $message = ($nuevoEstado == $estadoActivo->id) ? 'Usuario reestablecido exitosamente' : 'Usuario desactivado exitosamente';
+            $action = ($nuevoEstado == $estadoActivo->id) ? 'reestablecido' : 'desactivado';
 
             DB::commit();
 
+            /*Log::info("Usuario {$action}", [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'nuevo_estado' => $nuevoEstado,
+                'action_by' => auth()->id()
+            ]);*/
+
             return redirect()->route('users.index')
-                ->with('success', 'Usuario eliminado exitosamente');
+                ->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Error al eliminar el usuario", ['error' => $e->getMessage()]);
+            Log::error("Error al cambiar estado del usuario", [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
             return redirect()->route('users.index')
-                ->with('error', 'Error al eliminar el usuario: ' . $e->getMessage());
+                ->with('error', 'Error al cambiar el estado del usuario: ' . $e->getMessage());
         }
     }
 }

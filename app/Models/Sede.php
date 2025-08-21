@@ -9,19 +9,25 @@ class Sede extends Model
     protected $fillable = [
         'codigo_sede',
         'nombre_sede',
-        'ciudad',
+        'ciudad_id',
         'direccion',
         'descripcion',
         'capacidad'
     ];
     
-    public function usersLaborales()
+    public function horarios()
     {
-        return $this->hasMany(UserLaborale::class);
+        return $this->hasMany(UserHorario::class, 'sede_id');
     }
 
     public function configuracionesAsignacion()
     {
         return $this->hasMany(ConfigAsignacione::class);
     }
+
+    public function ciudad()
+    {
+        return $this->belongsTo(Ciudade::class, 'ciudad_id');
+    }
+
 }
