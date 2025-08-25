@@ -18,7 +18,8 @@
                         <h3 class="card-title">Selección de Cliente</h3>
                     </div>
                     <div class="card-body">
-                        <div class="form-group">
+                        <div class="form-group radio-group">
+                            <label class="d-block mb-2"><strong>Tipo de Cliente:</strong></label>
                             <div class="custom-control custom-radio custom-control-inline">
                                 <input type="radio" id="cliente_existente" name="tipo_cliente"
                                     class="custom-control-input" value="existente" checked>
@@ -29,12 +30,20 @@
                                     value="nuevo">
                                 <label class="custom-control-label" for="nuevo_cliente">Nuevo Cliente</label>
                             </div>
+                            <div class="alert alert-info mt-2 mb-0">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Información:</strong> Seleccione "Cliente Existente" si el cliente ya está registrado en el sistema, 
+                                o "Nuevo Cliente" si necesita crear un nuevo registro de cliente.
+                            </div>
                         </div>
 
                         <!-- Selector de Cliente Existente -->
-                        <div id="clienteExistenteSection">
+                        <div id="clienteExistenteSection" class="form-section">
+                            <div class="section-header">
+                                <h5><i class="fas fa-user-check"></i> Seleccionar Cliente Existente</h5>
+                            </div>
                             <div class="form-group">
-                                <label for="cliente_id">Seleccionar Cliente *</label>
+                                <label for="cliente_id" class="field-required">Cliente</label>
                                 <select name="cliente_id" id="cliente_id"
                                     class="form-control select2 @error('cliente_id') is-invalid @enderror">
                                     <option value="">Buscar cliente...</option>
@@ -56,7 +65,10 @@
                         </div>
 
                         <!-- Formulario de Nuevo Cliente (oculto inicialmente) -->
-                        <div id="nuevoClienteSection" style="display: none;">
+                        <div id="nuevoClienteSection" class="form-section" style="display: none;">
+                            <div class="section-header">
+                                <h5><i class="fas fa-user-plus"></i> Datos del Nuevo Cliente</h5>
+                            </div>
                             @include('leads.nuevo.manual._cliente_form')
                         </div>
                     </div>
@@ -108,6 +120,54 @@
         #nuevoClienteSection {
             transition: all 0.3s ease;
         }
+
+        .radio-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .radio-group .custom-control {
+            margin-right: 2rem;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #007bff;
+        }
+
+        .section-header h5 {
+            margin: 0;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .field-required::after {
+            content: " *";
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .form-section {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: #fff;
+        }
+
+        .form-section.hidden {
+            display: none;
+        }
+
+        .alert {
+            border-radius: 0.375rem;
+        }
+
+        .invalid-feedback {
+            display: block;
+        }
     </style>
 @stop
 
@@ -121,22 +181,78 @@
                 allowClear: true
             });
 
+            // Función para limpiar campos del formulario de nuevo cliente
+            function limpiarCamposNuevoCliente() {
+                $('#nuevoClienteSection input[type="text"], #nuevoClienteSection input[type="email"]').val('');
+                $('#nuevoClienteSection select').prop('selectedIndex', 0);
+                $('#nuevoClienteSection .is-invalid').removeClass('is-invalid');
+                $('#nuevoClienteSection .invalid-feedback').hide();
+            }
+
+            // Función para limpiar selector de cliente existente
+            function limpiarClienteExistente() {
+                $('#cliente_id').val('').trigger('change');
+                $('#cliente_id').removeClass('is-invalid');
+                $('#cliente_id').siblings('.invalid-feedback').hide();
+            }
+
+            // Función para configurar campos requeridos
+            function configurarCamposRequeridos(tipoCliente) {
+                if (tipoCliente === 'existente') {
+                    // Hacer requerido solo el selector de cliente existente
+                    $('#cliente_id').prop('required', true);
+                    
+                    // Remover required de todos los campos de nuevo cliente
+                    $('#nuevoClienteSection input, #nuevoClienteSection select').prop('required', false);
+                    
+                    // Remover required de los campos específicos
+                    $('#nombre, #apellido_paterno, #estado_cliente_id').prop('required', false);
+                    
+                } else {
+                    // Hacer no requerido el selector de cliente existente
+                    $('#cliente_id').prop('required', false);
+                    
+                    // Hacer requeridos solo los campos obligatorios de nuevo cliente
+                    $('#nombre').prop('required', true);
+                    $('#apellido_paterno').prop('required', true);
+                    $('#estado_cliente_id').prop('required', true);
+                    
+                    // Los demás campos no son requeridos
+                    $('#apellido_materno, #dni, #celular, #celular_alterno, #correo').prop('required', false);
+                }
+            }
+
             // Manejar el cambio entre cliente existente y nuevo
             $('input[name="tipo_cliente"]').change(function() {
-                if ($(this).val() === 'existente') {
+                const tipoCliente = $(this).val();
+                
+                if (tipoCliente === 'existente') {
+                    // Mostrar sección de cliente existente
                     $('#clienteExistenteSection').show();
                     $('#nuevoClienteSection').hide();
-                    $('#cliente_id').prop('required', true);
-                    // Hacer no requeridos los campos de nuevo cliente
-                    $('#nuevoClienteSection input, #nuevoClienteSection select').prop('required', false);
+                    
+                    // Limpiar y hacer no requeridos los campos de nuevo cliente
+                    limpiarCamposNuevoCliente();
+                    
+                    // Limpiar errores de validación del formulario de nuevo cliente
+                    $('#nuevoClienteSection .is-invalid').removeClass('is-invalid');
+                    $('#nuevoClienteSection .invalid-feedback').hide();
+                    
                 } else {
+                    // Mostrar formulario de nuevo cliente
                     $('#clienteExistenteSection').hide();
                     $('#nuevoClienteSection').show();
-                    $('#cliente_id').prop('required', false);
-                    // Hacer requeridos los campos de nuevo cliente
-                    $('#nuevoClienteSection input[required], #nuevoClienteSection select[required]').prop(
-                        'required', true);
+                    
+                    // Limpiar selector de cliente existente
+                    limpiarClienteExistente();
+                    
+                    // Limpiar errores de validación del selector de cliente
+                    $('#cliente_id').removeClass('is-invalid');
+                    $('#cliente_id').siblings('.invalid-feedback').hide();
                 }
+                
+                // Configurar campos requeridos según el tipo seleccionado
+                configurarCamposRequeridos(tipoCliente);
             });
 
             // Validación de campos numéricos
@@ -144,10 +260,81 @@
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
 
+            // Validación en tiempo real para DNI
+            $('#dni').on('blur', function() {
+                if ($(this).val().length > 0 && $(this).val().length !== 8) {
+                    $(this).addClass('is-invalid');
+                    if (!$(this).siblings('.invalid-feedback').length) {
+                        $(this).after('<span class="invalid-feedback"><strong>El DNI debe tener 8 caracteres.</strong></span>');
+                    }
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').remove();
+                }
+            });
+
+            // Validación en tiempo real para celular
+            $('#celular, #celular_alterno').on('blur', function() {
+                if ($(this).val().length > 0 && $(this).val().length !== 9) {
+                    $(this).addClass('is-invalid');
+                    if (!$(this).siblings('.invalid-feedback').length) {
+                        $(this).after('<span class="invalid-feedback"><strong>El celular debe tener 9 dígitos.</strong></span>');
+                    }
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').remove();
+                }
+            });
+
+            // Configurar campos requeridos inicialmente (cliente existente por defecto)
+            configurarCamposRequeridos('existente');
+
             // Si hay errores en el formulario de nuevo cliente, mostrar esa sección
-            @if ($errors->has('nombre') || $errors->has('apellido_paterno') || $errors->has('dni'))
+            @if ($errors->has('nombre') || $errors->has('apellido_paterno') || $errors->has('dni') || $errors->has('estado_cliente_id'))
                 $('#nuevo_cliente').prop('checked', true).trigger('change');
             @endif
+
+            // Si hay errores en el selector de cliente existente, mostrar esa sección
+            @if ($errors->has('cliente_id'))
+                $('#cliente_existente').prop('checked', true).trigger('change');
+            @endif
+
+            // Validación del formulario antes de enviar
+            $('#leadForm').on('submit', function(e) {
+                let isValid = true;
+                
+                // Obtener el tipo de cliente seleccionado
+                const tipoCliente = $('input[name="tipo_cliente"]:checked').val();
+                
+                // Limpiar todos los errores previos
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').hide();
+                
+                if (tipoCliente === 'existente') {
+                    // Validar que se haya seleccionado un cliente
+                    if (!$('#cliente_id').val()) {
+                        $('#cliente_id').addClass('is-invalid');
+                        isValid = false;
+                    }
+                } else if (tipoCliente === 'nuevo') {
+                    // Validar campos obligatorios del nuevo cliente
+                    const camposRequeridos = ['#nombre', '#apellido_paterno', '#estado_cliente_id'];
+                    camposRequeridos.forEach(campo => {
+                        if (!$(campo).val()) {
+                            $(campo).addClass('is-invalid');
+                            isValid = false;
+                        }
+                    });
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    // Mostrar mensaje de error
+                    if (!$('.alert-danger').length) {
+                        $('<div class="alert alert-danger mt-3">Por favor, complete todos los campos requeridos.</div>').insertBefore('#leadForm .d-flex');
+                    }
+                }
+            });
         });
     </script>
 @stop

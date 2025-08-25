@@ -14,18 +14,11 @@ class StoreLeadRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            // Datos del Cliente
-            'nombre' => 'required|string|max:100',
-            'apellido_paterno' => 'required|string|max:50',
-            'apellido_materno' => 'nullable|string|max:50',
-            'dni' => 'nullable|string|size:8|unique:clientes,dni',
-            'celular' => 'nullable|string|size:9',
-            'celular_alterno' => 'nullable|string|size:9',
-            'correo' => 'nullable|email|max:100',
-            'estado_cliente_id' => 'required|exists:estado_clientes,id',
+        $rules = [
+            // Campo de selección de tipo de cliente
+            'tipo_cliente' => 'required|in:existente,nuevo',
             
-            // Datos del Lead
+            // Datos del Lead (siempre requeridos)
             'canal_id' => 'required|exists:canales,id',
             'tipo_id' => 'required|exists:tipo_leads,id',
             'estado_actual_id' => 'required|exists:estado_leads,id',
@@ -36,11 +29,34 @@ class StoreLeadRequest extends FormRequest
             'tiempo_compra' => 'nullable|string|max:100',
             'observacion' => 'nullable|string',
         ];
+
+        // Si es cliente existente, validar cliente_id
+        if ($this->input('tipo_cliente') === 'existente') {
+            $rules['cliente_id'] = 'required|exists:clientes,id';
+        }
+
+        // Si es nuevo cliente, validar campos del cliente
+        if ($this->input('tipo_cliente') === 'nuevo') {
+            $rules['nombre'] = 'required|string|max:100';
+            $rules['apellido_paterno'] = 'required|string|max:50';
+            $rules['apellido_materno'] = 'nullable|string|max:50';
+            $rules['dni'] = 'nullable|string|size:8|unique:clientes,dni';
+            $rules['celular'] = 'nullable|string|size:9';
+            $rules['celular_alterno'] = 'nullable|string|size:9';
+            $rules['correo'] = 'nullable|email|max:100';
+            $rules['estado_cliente_id'] = 'required|exists:estado_clientes,id';
+        }
+
+        return $rules;
     }
 
     public function messages(): array
     {
         return [
+            'tipo_cliente.required' => 'Debe seleccionar el tipo de cliente.',
+            'tipo_cliente.in' => 'El tipo de cliente seleccionado no es válido.',
+            'cliente_id.required' => 'Debe seleccionar un cliente existente.',
+            'cliente_id.exists' => 'El cliente seleccionado no existe.',
             'nombre.required' => 'El nombre del cliente es obligatorio.',
             'apellido_paterno.required' => 'El apellido paterno es obligatorio.',
             'dni.unique' => 'Este DNI ya está registrado.',

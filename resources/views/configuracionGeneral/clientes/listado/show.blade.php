@@ -64,7 +64,7 @@
                                         <td>{{ $lead->tipo->nombre_tipo }}</td>
                                         <td>
                                             <span class="badge badge-{{ $lead->estadoActual->clase ?? 'secondary' }}">
-                                                {{ $lead->estadoActual->nombre }}
+                                                {{ $lead->estadoActual->nombre_estado }}
                                             </span>
                                         </td>
                                         <td>{{ $lead->created_at->format('d/m/Y') }}</td>
