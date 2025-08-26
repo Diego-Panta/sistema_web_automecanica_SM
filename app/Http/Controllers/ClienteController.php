@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use App\Models\EstadoCliente;
+use App\Models\TipoDocumento;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class ClienteController extends Controller
      */
     public function index()
     {
-        $clientes = Cliente::with('estado')
+        $clientes = Cliente::with(['estado', 'tipoDocumento'])
             ->latest()
             ->paginate(20);
 
@@ -30,7 +31,8 @@ class ClienteController extends Controller
     public function create()
     {
         return view('configuracionGeneral.clientes.listado.create', [
-            'estados' => EstadoCliente::all()
+            'estados' => EstadoCliente::all(),
+            'tiposDocumento' => TipoDocumento::all()
         ]);
     }
 
@@ -62,7 +64,7 @@ class ClienteController extends Controller
      */
     public function show(Cliente $cliente)
     {
-        $cliente->load(['estado', 'leads']);
+        $cliente->load(['estado', 'tipoDocumento', 'leads']);
         return view('configuracionGeneral.clientes.listado.show', compact('cliente'));
     }
 
@@ -73,7 +75,8 @@ class ClienteController extends Controller
     {
         return view('configuracionGeneral.clientes.listado.edit', [
             'cliente' => $cliente,
-            'estados' => EstadoCliente::all()
+            'estados' => EstadoCliente::all(),
+            'tiposDocumento' => TipoDocumento::all()
         ]);
     }
 

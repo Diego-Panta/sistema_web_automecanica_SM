@@ -118,32 +118,6 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label for="tiempo_compra">Tiempo de Compra</label>
-            <input type="text" name="tiempo_compra" id="tiempo_compra" 
-                   class="form-control @error('tiempo_compra') is-invalid @enderror" 
-                   value="{{ old('tiempo_compra') }}" 
-                   placeholder="Ej: 1-3 meses, 3-6 meses, etc.">
-            @error('tiempo_compra')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-            @enderror
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="form-group">
-            <div class="form-check mt-4 pt-2">
-                <input type="checkbox" name="financiamiento" id="financiamiento" 
-                       class="form-check-input" value="1" {{ old('financiamiento') ? 'checked' : '' }}>
-                <label class="form-check-label" for="financiamiento">Requiere financiamiento</label>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="form-group">
     <label for="observacion">Observación</label>
     <textarea name="observacion" id="observacion" 

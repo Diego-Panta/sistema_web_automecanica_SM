@@ -57,11 +57,30 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="dni">DNI</label>
-                            <input type="text" name="dni" id="dni" 
-                                   class="form-control @error('dni') is-invalid @enderror" 
-                                   value="{{ old('dni') }}" maxlength="8">
-                            @error('dni')
+                            <label for="tipo_documento_id">Tipo de Documento *</label>
+                            <select name="tipo_documento_id" id="tipo_documento_id" 
+                                   class="form-control @error('tipo_documento_id') is-invalid @enderror" required>
+                                <option value="">Seleccione...</option>
+                                @foreach($tiposDocumento as $tipo)
+                                    <option value="{{ $tipo->id }}" {{ old('tipo_documento_id') == $tipo->id ? 'selected' : '' }}>
+                                        {{ $tipo->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('tipo_documento_id')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="numero_documento">Número de Documento</label>
+                            <input type="text" name="numero_documento" id="numero_documento" 
+                                   class="form-control @error('numero_documento') is-invalid @enderror" 
+                                   value="{{ old('numero_documento') }}" maxlength="20">
+                            @error('numero_documento')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>

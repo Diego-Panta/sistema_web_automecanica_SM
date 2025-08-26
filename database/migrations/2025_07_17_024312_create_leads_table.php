@@ -22,9 +22,15 @@ return new class extends Migration
             $table->foreignId('medio_contacto_id')->constrained('medio_contactos')->restrictOnDelete();
             $table->foreignId('forma_registro_id')->constrained('forma_registros')->restrictOnDelete();
             $table->foreignId('modelo_id')->nullable()->constrained('modelo_vehiculos')->nullOnDelete();
+            $table->foreignId('tipo_servicio_id')->nullable()->constrained('tipo_servicios')->nullOnDelete(); // Nuevo
             $table->boolean('financiamiento')->default(false);
             $table->string('tiempo_compra', 100)->nullable();
+            $table->string('numero_placa', 10)->nullable(); // Nuevo
+            $table->integer('kilometraje')->nullable(); // Nuevo
+            $table->timestamp('fecha_cita')->nullable(); // Nuevo
+            $table->string('horario_cita', 50)->nullable(); // Nuevo
             $table->text('observacion')->nullable();
+            $table->text('consulta')->nullable(); // Nuevo
             $table->timestamp('fecha_cierre')->nullable();
             $table->timestamps();
             $table->softDeletes();

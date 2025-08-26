@@ -12,6 +12,8 @@ use App\Models\MedioContacto;
 use App\Models\FormaRegistro;
 use App\Models\EstadoCliente;
 use App\Models\ModeloVehiculo;
+use App\Models\TipoDocumento;
+use App\Models\TipoServicio;
 use App\Http\Requests\StoreLeadRequest;
 use App\Http\Requests\UpdateLeadRequest;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +60,9 @@ class LeadController extends Controller
             'mediosContacto' => MedioContacto::all(),
             'formasRegistro' => FormaRegistro::all(),
             'modelos' => ModeloVehiculo::all(),
-            'clientes' => Cliente::all() // Agrega esta línea
+            'clientes' => Cliente::all(), // Agrega esta línea
+            'tiposDocumento' => TipoDocumento::all(),
+            'tiposServicio' => TipoServicio::all()
         ]);
     }
 
@@ -86,7 +90,8 @@ class LeadController extends Controller
                     'nombre' => $request->nombre,
                     'apellido_paterno' => $request->apellido_paterno,
                     'apellido_materno' => $request->apellido_materno,
-                    'dni' => $request->dni,
+                    'tipo_documento_id' => $request->tipo_documento_id,
+                    'numero_documento' => $request->numero_documento,
                     'celular' => $request->celular,
                     'celular_alterno' => $request->celular_alterno,
                     'correo' => $request->correo,
@@ -102,8 +107,13 @@ class LeadController extends Controller
                 'medio_contacto_id' => $request->medio_contacto_id,
                 'forma_registro_id' => $request->forma_registro_id,
                 'modelo_id' => $request->modelo_id,
+                'tipo_servicio_id' => $request->tipo_servicio_id,
                 'financiamiento' => $request->financiamiento ?? false,
                 'tiempo_compra' => $request->tiempo_compra,
+                'numero_placa' => $request->numero_placa,
+                'kilometraje' => $request->kilometraje,
+                'fecha_cita' => $request->fecha_cita,
+                'horario_cita' => $request->horario_cita,
                 'observacion' => $request->observacion,
                 'usuario_creador_id' => auth()->id(),
             ]);
@@ -135,6 +145,7 @@ class LeadController extends Controller
             'medioContacto',
             'formaRegistro',
             'modeloVehiculo',
+            'tipoServicio',
             'creador',
             'asignaciones.usuarioAsignado',
             'historialEstados.estado',
@@ -160,6 +171,8 @@ class LeadController extends Controller
             'mediosContacto' => MedioContacto::all(),
             'formasRegistro' => FormaRegistro::all(),
             'modelos' => ModeloVehiculo::all(),
+            'tiposDocumento' => TipoDocumento::all(),
+            'tiposServicio' => TipoServicio::all()
         ]);
     }
 
@@ -169,10 +182,12 @@ class LeadController extends Controller
     public function update(UpdateLeadRequest $request, Lead $lead)
     {
         try {
+            Log::info("Iniciando actualización del lead", ['lead_id' => $lead->id, 'request_data' => $request->all()]);
+            
             DB::beginTransaction();
 
             $lead->update([
-                'cliente_id' => $request->cliente_id,
+                'cliente_id' => $request->cliente_id, // Mantener la relación con el cliente
                 'canal_id' => $request->canal_id,
                 'tipo_id' => $request->tipo_id,
                 'estado_actual_id' => $request->estado_actual_id,
@@ -180,11 +195,18 @@ class LeadController extends Controller
                 'medio_contacto_id' => $request->medio_contacto_id,
                 'forma_registro_id' => $request->forma_registro_id,
                 'modelo_id' => $request->modelo_id,
-                'financiamiento' => $request->financiamiento ?? false,
+                'tipo_servicio_id' => $request->tipo_servicio_id,
+                'financiamiento' => $request->has('financiamiento'),
                 'tiempo_compra' => $request->tiempo_compra,
+                'numero_placa' => $request->numero_placa,
+                'kilometraje' => $request->kilometraje,
+                'fecha_cita' => $request->fecha_cita,
+                'horario_cita' => $request->horario_cita,
                 'observacion' => $request->observacion,
                 'fecha_cierre' => $request->fecha_cierre,
             ]);
+
+            Log::info("Lead actualizado exitosamente", ['lead_id' => $lead->id]);
 
             DB::commit();
 
@@ -192,10 +214,10 @@ class LeadController extends Controller
                 ->with('success', 'Lead actualizado exitosamente');
         } catch (Throwable $e) {
             DB::rollBack();
-            Log::error("Error al actualizar lead", ['error' => $e]);
+            Log::error("Error al actualizar lead", ['error' => $e, 'lead_id' => $lead->id]);
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Error al actualizar el lead');
+                ->with('error', 'Error al actualizar el lead: ' . $e->getMessage());
         }
     }
 

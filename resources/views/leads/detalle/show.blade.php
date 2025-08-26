@@ -72,6 +72,43 @@
                             {{ $lead->observacion ?? 'Sin observaciones' }}
                         </div>
                     </div>
+
+                    <!-- Campos Específicos según el Tipo de Lead -->
+                    @if($lead->isCompra())
+                        <div class="mt-3">
+                            <h6 class="text-success"><i class="fas fa-car"></i> Información de Compra</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Tiempo de Compra:</strong> {{ $lead->tiempo_compra ?? 'N/A' }}</p>
+                                    <p><strong>Financiamiento:</strong> {{ $lead->financiamiento ? 'Sí' : 'No' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($lead->isPostventa())
+                        <div class="mt-3">
+                            <h6 class="text-info"><i class="fas fa-tools"></i> Información de Postventa</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Número de Placa:</strong> {{ $lead->numero_placa ?? 'N/A' }}</p>
+                                    <p><strong>Kilometraje:</strong> {{ $lead->kilometraje ?? 'N/A' }} km</p>
+                                    <p><strong>Tipo de Servicio:</strong> {{ $lead->tipoServicio->nombre_tipo ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Fecha de Cita:</strong> {{ $lead->fecha_cita ? $lead->fecha_cita->format('d/m/Y') : 'N/A' }}</p>
+                                    <p><strong>Horario:</strong> {{ $lead->horario_cita ?? 'N/A' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($lead->isRepuesto())
+                        <div class="mt-3">
+                            <h6 class="text-warning"><i class="fas fa-cog"></i> Información de Repuesto</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Número de Placa:</strong> {{ $lead->numero_placa ?? 'N/A' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
             

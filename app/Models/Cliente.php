@@ -12,7 +12,8 @@ class Cliente extends Model
         'nombre',
         'apellido_paterno',
         'apellido_materno',
-        'dni',
+        'tipo_documento_id',
+        'numero_documento',
         'celular',
         'celular_alterno',
         'correo'
@@ -23,6 +24,11 @@ class Cliente extends Model
     public function estado()
     {
         return $this->belongsTo(EstadoCliente::class, 'estado_cliente_id');
+    }
+
+    public function tipoDocumento()
+    {
+        return $this->belongsTo(TipoDocumento::class, 'tipo_documento_id');
     }
 
     public function leads()

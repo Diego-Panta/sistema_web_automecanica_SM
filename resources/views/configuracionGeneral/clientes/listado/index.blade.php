@@ -38,7 +38,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Nombre Completo</th>
-                            <th>DNI</th>
+                            <th>Tipo Documento</th>
+                            <th>Número Documento</th>
                             <th>Celular</th>
                             <th>Estado</th>
                             <th>Leads</th>
@@ -50,7 +51,8 @@
                                 <tr>
                                     <td>{{ $cliente->id }}</td>
                                     <td>{{ $cliente->nombre_completo }}</td>
-                                    <td>{{ $cliente->dni ?? 'N/A' }}</td>
+                                    <td>{{ $cliente->tipoDocumento->nombre ?? 'N/A' }}</td>
+                                    <td>{{ $cliente->numero_documento ?? 'N/A' }}</td>
                                     <td>{{ $cliente->celular ?? 'N/A' }}</td>
                                     <td>
                                         @if ($cliente->estado)

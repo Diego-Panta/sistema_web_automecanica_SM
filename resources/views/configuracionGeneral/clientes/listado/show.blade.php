@@ -26,7 +26,8 @@
                     <p><strong>Nombres:</strong> {{ $cliente->nombre }}</p>
                     <p><strong>Apellido Paterno:</strong> {{ $cliente->apellido_paterno }}</p>
                     <p><strong>Apellido Materno:</strong> {{ $cliente->apellido_materno ?? 'N/A' }}</p>
-                    <p><strong>DNI:</strong> {{ $cliente->dni ?? 'N/A' }}</p>
+                    <p><strong>Tipo de Documento:</strong> {{ $cliente->tipoDocumento->nombre ?? 'N/A' }}</p>
+                    <p><strong>Número de Documento:</strong> {{ $cliente->numero_documento ?? 'N/A' }}</p>
                 </div>
                 <div class="col-md-6">
                     <h5>Información de Contacto</h5>

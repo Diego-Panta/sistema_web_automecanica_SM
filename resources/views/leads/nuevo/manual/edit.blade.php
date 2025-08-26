@@ -13,6 +13,9 @@
                 @csrf
                 @method('PUT')
                 
+                <!-- Campo oculto para mantener la relación con el cliente -->
+                <input type="hidden" name="cliente_id" value="{{ $lead->cliente_id }}">
+                
                 <!-- Información del Cliente (solo lectura) -->
                 <div class="card mb-4">
                     <div class="card-header bg-info text-white">
@@ -29,9 +32,18 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>DNI</label>
+                                    <label>Tipo de Documento</label>
                                     <input type="text" class="form-control" 
-                                           value="{{ $lead->cliente->dni ?? 'N/A' }}" readonly>
+                                           value="{{ $lead->cliente->tipoDocumento->nombre ?? 'N/A' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label>Número de Documento</label>
+                                        <input type="text" class="form-control" 
+                                               value="{{ $lead->cliente->numero_documento ?? 'N/A' }}" readonly>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -236,6 +248,9 @@
                     </div>
                 </div>
 
+                <!-- Campos Específicos según el Tipo de Lead -->
+                @include('leads.nuevo.manual._lead_form_dinamico_edit')
+
                 <div class="d-flex justify-content-between">
                     <a href="{{ route('leads.show', $lead) }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Cancelar
@@ -277,6 +292,31 @@
                 placeholder: 'Seleccione una opción',
                 allowClear: true
             });
+
+            // Mostrar campos específicos según el tipo de lead
+            mostrarCamposEspecificos();
+
+            // Manejar el cambio de tipo de lead
+            $('#tipo_id').change(function() {
+                mostrarCamposEspecificos();
+            });
+
+            // Función para mostrar campos específicos según el tipo de lead
+            function mostrarCamposEspecificos() {
+                // Ocultar todos los campos específicos
+                $('.campos-especificos').hide();
+                
+                // Obtener el nombre del tipo seleccionado
+                const tipoSeleccionado = $('#tipo_id option:selected').text().toLowerCase();
+                
+                if (tipoSeleccionado.includes('compra') || tipoSeleccionado.includes('cotización')) {
+                    $('#camposCompra').show();
+                } else if (tipoSeleccionado.includes('postventa') || tipoSeleccionado.includes('servicio')) {
+                    $('#camposPostventa').show();
+                } else if (tipoSeleccionado.includes('repuesto') || tipoSeleccionado.includes('cotiza')) {
+                    $('#camposRepuesto').show();
+                }
+            }
         });
     </script>
 @stop

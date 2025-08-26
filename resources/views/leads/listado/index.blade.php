@@ -3,7 +3,7 @@
 @section('title', 'Listado de Leads')
 
 @section('content_header')
-    <h1>Listado de Leads</h1>
+    <h1 class="mb-4">Listado de Leads</h1>
     <div class="d-flex justify-content-between">
         <a href="{{ route('leads.create.manual') }}" class="btn btn-primary">
             <i class="fas fa-plus-circle"></i> Nuevo Lead Manual
@@ -46,7 +46,8 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <span class="badge" style="background-color: {{ $lead->tipo->color ?? '#6c757d' }}; color: white;">
+                                    <span class="badge"
+                                        style="background-color: {{ $lead->tipo->color ?? '#6c757d' }}; color: white;">
                                         {{ $lead->tipo->nombre_tipo }}
                                     </span>
                                 </td>
@@ -60,16 +61,20 @@
                                 <td>{{ $lead->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="{{ route('leads.show', $lead) }}" class="btn btn-sm btn-info" title="Ver">
+                                        <a href="{{ route('leads.show', $lead) }}" class="btn btn-sm btn-info"
+                                            title="Ver">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('leads.edit', $lead) }}" class="btn btn-sm btn-primary" title="Editar">
+                                        <a href="{{ route('leads.edit', $lead) }}" class="btn btn-sm btn-primary"
+                                            title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('leads.destroy', $lead) }}" method="POST" style="display: inline;">
+                                        <form action="{{ route('leads.destroy', $lead) }}" method="POST"
+                                            style="display: inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este lead?')">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Eliminar"
+                                                onclick="return confirm('¿Estás seguro de eliminar este lead?')">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
@@ -97,9 +102,11 @@
             font-size: 0.9em;
             padding: 0.35em 0.65em;
         }
+
         .table-responsive {
             overflow-x: auto;
         }
+
         .btn-group {
             display: flex;
             gap: 5px;
@@ -112,7 +119,7 @@
         $(document).ready(function() {
             // Mostrar tooltips
             $('[title]').tooltip();
-            
+
             // Confirmación antes de eliminar
             $('form').submit(function(e) {
                 if ($(this).hasClass('delete-form')) {

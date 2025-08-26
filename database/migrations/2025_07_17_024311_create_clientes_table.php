@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('clientes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('estado_cliente_id')->constrained('estado_clientes')->restrictOnDelete();;
+            $table->foreignId('estado_cliente_id')->constrained('estado_clientes')->restrictOnDelete();
             $table->string('nombre', 100);
             $table->string('apellido_paterno', 50);
             $table->string('apellido_materno', 50)->nullable();
-            $table->string('dni', 8)->unique()->nullable();
+            $table->foreignId('tipo_documento_id')->constrained('tipo_documentos')->restrictOnDelete();
+            $table->string('numero_documento', 20)->nullable();
             $table->string('celular', 9)->nullable();
             $table->string('celular_alterno', 9)->nullable();
             $table->string('correo', 100)->nullable();

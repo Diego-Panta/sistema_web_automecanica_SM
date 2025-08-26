@@ -51,7 +51,7 @@
                                         <option value="{{ $cliente->id }}"
                                             {{ old('cliente_id') == $cliente->id ? 'selected' : '' }}>
                                             {{ $cliente->nombre_completo }} -
-                                            {{ $cliente->dni ?? 'Sin DNI' }} -
+                                            {{ $cliente->tipoDocumento->nombre ?? 'Sin documento' }}: {{ $cliente->numero_documento ?? 'N/A' }} -
                                             {{ $cliente->celular ?? 'Sin celular' }}
                                         </option>
                                     @endforeach
@@ -83,6 +83,9 @@
                         @include('leads.nuevo.manual._lead_form')
                     </div>
                 </div>
+
+                <!-- Campos Específicos según el Tipo de Lead -->
+                @include('leads.nuevo.manual._lead_form_dinamico')
 
                 <div class="d-flex justify-content-between">
                     <a href="{{ route('leads.index') }}" class="btn btn-secondary">
@@ -215,10 +218,11 @@
                     // Hacer requeridos solo los campos obligatorios de nuevo cliente
                     $('#nombre').prop('required', true);
                     $('#apellido_paterno').prop('required', true);
+                    $('#tipo_documento_id').prop('required', true);
                     $('#estado_cliente_id').prop('required', true);
                     
                     // Los demás campos no son requeridos
-                    $('#apellido_materno, #dni, #celular, #celular_alterno, #correo').prop('required', false);
+                    $('#apellido_materno, #numero_documento, #celular, #celular_alterno, #correo').prop('required', false);
                 }
             }
 
@@ -251,21 +255,43 @@
                     $('#cliente_id').siblings('.invalid-feedback').hide();
                 }
                 
-                // Configurar campos requeridos según el tipo seleccionado
-                configurarCamposRequeridos(tipoCliente);
-            });
+                            // Configurar campos requeridos según el tipo seleccionado
+            configurarCamposRequeridos(tipoCliente);
+        });
 
-            // Validación de campos numéricos
-            $('#dni, #celular, #celular_alterno').on('input', function() {
+        // Manejar el cambio de tipo de lead
+        $('#tipo_id').change(function() {
+            mostrarCamposEspecificos($(this).val());
+        });
+
+        // Función para mostrar campos específicos según el tipo de lead
+        function mostrarCamposEspecificos(tipoId) {
+            // Ocultar todos los campos específicos
+            $('.campos-especificos').hide();
+            
+            // Obtener el nombre del tipo seleccionado
+            const tipoSeleccionado = $('#tipo_id option:selected').text().toLowerCase();
+            
+            if (tipoSeleccionado.includes('compra') || tipoSeleccionado.includes('cotización')) {
+                $('#camposCompra').show();
+            } else if (tipoSeleccionado.includes('postventa') || tipoSeleccionado.includes('servicio')) {
+                $('#camposPostventa').show();
+            } else if (tipoSeleccionado.includes('repuesto') || tipoSeleccionado.includes('cotiza')) {
+                $('#camposRepuesto').show();
+            }
+        }
+
+        // Validación de campos numéricos
+            $('#numero_documento, #celular, #celular_alterno').on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
 
-            // Validación en tiempo real para DNI
-            $('#dni').on('blur', function() {
-                if ($(this).val().length > 0 && $(this).val().length !== 8) {
+            // Validación en tiempo real para número de documento
+            $('#numero_documento').on('blur', function() {
+                if ($(this).val().length > 0 && $(this).val().length > 20) {
                     $(this).addClass('is-invalid');
                     if (!$(this).siblings('.invalid-feedback').length) {
-                        $(this).after('<span class="invalid-feedback"><strong>El DNI debe tener 8 caracteres.</strong></span>');
+                        $(this).after('<span class="invalid-feedback"><strong>El número de documento no puede exceder los 20 caracteres.</strong></span>');
                     }
                 } else {
                     $(this).removeClass('is-invalid');
@@ -289,8 +315,11 @@
             // Configurar campos requeridos inicialmente (cliente existente por defecto)
             configurarCamposRequeridos('existente');
 
+            // Mostrar campos específicos según el tipo de lead seleccionado
+            mostrarCamposEspecificos($('#tipo_id').val());
+
             // Si hay errores en el formulario de nuevo cliente, mostrar esa sección
-            @if ($errors->has('nombre') || $errors->has('apellido_paterno') || $errors->has('dni') || $errors->has('estado_cliente_id'))
+            @if ($errors->has('nombre') || $errors->has('apellido_paterno') || $errors->has('tipo_documento_id') || $errors->has('numero_documento') || $errors->has('estado_cliente_id'))
                 $('#nuevo_cliente').prop('checked', true).trigger('change');
             @endif
 
@@ -318,7 +347,7 @@
                     }
                 } else if (tipoCliente === 'nuevo') {
                     // Validar campos obligatorios del nuevo cliente
-                    const camposRequeridos = ['#nombre', '#apellido_paterno', '#estado_cliente_id'];
+                    const camposRequeridos = ['#nombre', '#apellido_paterno', '#tipo_documento_id', '#estado_cliente_id'];
                     camposRequeridos.forEach(campo => {
                         if (!$(campo).val()) {
                             $(campo).addClass('is-invalid');
