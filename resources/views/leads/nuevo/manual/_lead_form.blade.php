@@ -61,25 +61,6 @@
 <div class="row">
     <div class="col-md-4">
         <div class="form-group">
-            <label for="medio_contacto_id">Medio de Contacto *</label>
-            <select name="medio_contacto_id" id="medio_contacto_id" 
-                    class="form-control @error('medio_contacto_id') is-invalid @enderror" required>
-                <option value="">Seleccione</option>
-                @foreach($mediosContacto as $medio)
-                    <option value="{{ $medio->id }}" {{ old('medio_contacto_id') == $medio->id ? 'selected' : '' }}>
-                        {{ $medio->nombre_medio }}
-                    </option>
-                @endforeach
-            </select>
-            @error('medio_contacto_id')
-                <span class="invalid-feedback" role="alert">
-                    <strong>{{ $message }}</strong>
-                </span>
-            @enderror
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="form-group">
             <label for="forma_registro_id">Forma de Registro *</label>
             <select name="forma_registro_id" id="forma_registro_id" 
                     class="form-control @error('forma_registro_id') is-invalid @enderror" required>

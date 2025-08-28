@@ -130,27 +130,7 @@
                         </div>
 
                         <!-- Resto de campos del lead (similar a create) -->
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="medio_contacto_id">Medio de Contacto *</label>
-                                    <select name="medio_contacto_id" id="medio_contacto_id" 
-                                            class="form-control @error('medio_contacto_id') is-invalid @enderror" required>
-                                        <option value="">Seleccione</option>
-                                        @foreach($mediosContacto as $medio)
-                                            <option value="{{ $medio->id }}" 
-                                                {{ $lead->medio_contacto_id == $medio->id ? 'selected' : '' }}>
-                                                {{ $medio->nombre_medio }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('medio_contacto_id')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
+                        <div class="row">                        
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="forma_registro_id">Forma de Registro *</label>
@@ -192,34 +172,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="tiempo_compra">Tiempo de Compra</label>
-                                    <input type="text" name="tiempo_compra" id="tiempo_compra" 
-                                           class="form-control @error('tiempo_compra') is-invalid @enderror" 
-                                           value="{{ old('tiempo_compra', $lead->tiempo_compra) }}" 
-                                           placeholder="Ej: 1-3 meses, 3-6 meses, etc.">
-                                    @error('tiempo_compra')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <div class="form-check mt-4 pt-2">
-                                        <input type="checkbox" name="financiamiento" id="financiamiento" 
-                                               class="form-check-input" value="1" 
-                                               {{ old('financiamiento', $lead->financiamiento) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="financiamiento">Requiere financiamiento</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="form-group">
                             <label for="observacion">Observación</label>
                             <textarea name="observacion" id="observacion" 
@@ -280,6 +232,49 @@
         .select2-container--default .select2-selection--single .select2-selection__arrow {
             height: calc(2.25rem + 2px);
         }
+        
+        /* Estilos para campos Select2 con errores */
+        .select2-container.is-invalid .select2-selection--single {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        /* Asegurar que los campos Select2 sean focusables */
+        .select2-container .select2-selection--single {
+            cursor: pointer;
+        }
+        
+        .select2-container .select2-selection--single:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        /* Estilos para campos requeridos */
+        .field-required::after {
+            content: " *";
+            color: #dc3545;
+        }
+        
+        /* Mejorar la apariencia de los mensajes de error */
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+        
+        /* Estilos para campos con errores */
+        .form-control.is-invalid,
+        .select2-container.is-invalid .select2-selection--single {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 1.4 1.4m0 0 1.4-1.4m-1.4 1.4L7.2 6m0 0L5.8 7.4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
     </style>
 @stop
 
@@ -287,10 +282,11 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Inicializar select2
+            // Inicializar select2 con configuración específica para evitar problemas de focus
             $('select').select2({
                 placeholder: 'Seleccione una opción',
-                allowClear: true
+                allowClear: true,
+                width: '100%'
             });
 
             // Mostrar campos específicos según el tipo de lead
@@ -299,6 +295,8 @@
             // Manejar el cambio de tipo de lead
             $('#tipo_id').change(function() {
                 mostrarCamposEspecificos();
+                // Limpiar validaciones previas
+                limpiarValidaciones();
             });
 
             // Función para mostrar campos específicos según el tipo de lead
@@ -311,12 +309,146 @@
                 
                 if (tipoSeleccionado.includes('compra') || tipoSeleccionado.includes('cotización')) {
                     $('#camposCompra').show();
+                    // Configurar campos requeridos para compra
+                    configurarCamposRequeridos('compra');
                 } else if (tipoSeleccionado.includes('postventa') || tipoSeleccionado.includes('servicio')) {
                     $('#camposPostventa').show();
+                    // Configurar campos requeridos para postventa
+                    configurarCamposRequeridos('postventa');
                 } else if (tipoSeleccionado.includes('repuesto') || tipoSeleccionado.includes('cotiza')) {
                     $('#camposRepuesto').show();
+                    // Configurar campos requeridos para repuesto
+                    configurarCamposRequeridos('repuesto');
+                } else {
+                    // Limpiar todos los campos requeridos si no hay tipo seleccionado
+                    limpiarCamposRequeridos();
                 }
             }
+
+            // Función para configurar campos requeridos según el tipo
+            function configurarCamposRequeridos(tipo) {
+                // Primero limpiar todos los campos requeridos
+                limpiarCamposRequeridos();
+                
+                if (tipo === 'postventa') {
+                    // Campos requeridos para postventa
+                    $('#numero_placa_postventa').prop('required', true);
+                    $('#kilometraje').prop('required', true);
+                    $('#tipo_servicio_id').prop('required', true);
+                    $('#fecha_cita').prop('required', true);
+                    $('#horario_cita').prop('required', true);
+                    
+                    // Asegurar que los campos Select2 sean focusables
+                    setTimeout(function() {
+                        $('#tipo_servicio_id').next('.select2-container').find('.select2-selection').attr('tabindex', '0');
+                        $('#horario_cita').next('.select2-container').find('.select2-selection').attr('tabindex', '0');
+                    }, 100);
+                } else if (tipo === 'compra') {
+                    // Campos requeridos para compra
+                    $('#tiempo_compra').prop('required', true);
+                } else if (tipo === 'repuesto') {
+                    // Campos requeridos para repuesto
+                    $('#numero_placa_repuesto').prop('required', true);
+                    $('#consulta_repuesto').prop('required', true);
+                }
+            }
+
+            // Función para limpiar campos requeridos
+            function limpiarCamposRequeridos() {
+                $('.campos-especificos input, .campos-especificos select').prop('required', false);
+            }
+
+            // Función para limpiar validaciones
+            function limpiarValidaciones() {
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').hide();
+                $('.select2-container').removeClass('is-invalid');
+            }
+
+            // Validación del formulario antes de enviar
+            $('form').on('submit', function(e) {
+                let isValid = true;
+                let errores = [];
+
+                // Limpiar validaciones previas
+                limpiarValidaciones();
+
+                // Obtener el tipo de lead seleccionado
+                const tipoSeleccionado = $('#tipo_id option:selected').text().toLowerCase();
+
+                // Validar campos específicos según el tipo
+                if (tipoSeleccionado.includes('postventa') || tipoSeleccionado.includes('servicio')) {
+                    const camposPostventa = [
+                        { campo: '#numero_placa_postventa', mensaje: 'El número de placa es obligatorio.' },
+                        { campo: '#kilometraje', mensaje: 'El kilometraje es obligatorio.' },
+                        { campo: '#tipo_servicio_id', mensaje: 'El tipo de servicio es obligatorio.' },
+                        { campo: '#fecha_cita', mensaje: 'La fecha de cita es obligatoria.' },
+                        { campo: '#horario_cita', mensaje: 'El horario de cita es obligatorio.' }
+                    ];
+
+                    camposPostventa.forEach(item => {
+                        if (!$(item.campo).val()) {
+                            $(item.campo).addClass('is-invalid');
+                            // Para campos Select2, también marcar el contenedor
+                            if ($(item.campo).hasClass('select2-hidden-accessible')) {
+                                $(item.campo).next('.select2-container').addClass('is-invalid');
+                            }
+                            errores.push(item.mensaje);
+                            isValid = false;
+                        }
+                    });
+                } else if (tipoSeleccionado.includes('compra') || tipoSeleccionado.includes('cotización')) {
+                    if (!$('#tiempo_compra').val()) {
+                        $('#tiempo_compra').addClass('is-invalid');
+                        errores.push('El tiempo de compra es obligatorio para leads de compra.');
+                        isValid = false;
+                    }
+                } else if (tipoSeleccionado.includes('repuesto') || tipoSeleccionado.includes('cotiza')) {
+                    if (!$('#numero_placa_repuesto').val()) {
+                        $('#numero_placa_repuesto').addClass('is-invalid');
+                        errores.push('El número de placa es obligatorio para leads de repuesto.');
+                        isValid = false;
+                    }
+                    if (!$('#consulta_repuesto').val()) {
+                        $('#consulta_repuesto').addClass('is-invalid');
+                        errores.push('La consulta es obligatoria para leads de repuesto.');
+                        isValid = false;
+                    }
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    // Mostrar mensaje de error
+                    if ($('.alert-danger').length === 0) {
+                        $('form').prepend('<div class="alert alert-danger"><ul><li>' + errores.join('</li><li>') + '</li></ul></div>');
+                    }
+                    // Hacer scroll al primer error
+                    $('html, body').animate({
+                        scrollTop: $('.is-invalid:first').offset().top - 100
+                    }, 500);
+                }
+            });
+
+            // Hacer que los campos Select2 sean focusables cuando se muestren
+            $(document).on('shown.bs.tab', function() {
+                setTimeout(function() {
+                    $('.select2-container').each(function() {
+                        $(this).find('.select2-selection').attr('tabindex', '0');
+                    });
+                }, 100);
+            });
+
+            // Asegurar que los campos Select2 sean focusables después de la inicialización
+            setTimeout(function() {
+                $('.select2-container').each(function() {
+                    $(this).find('.select2-selection').attr('tabindex', '0');
+                });
+            }, 200);
+
+            // Configurar campos requeridos inicialmente
+            setTimeout(function() {
+                mostrarCamposEspecificos();
+            }, 300);
         });
     </script>
 @stop

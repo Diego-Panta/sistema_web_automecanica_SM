@@ -31,7 +31,6 @@
                             <th>Tipo</th>
                             <th>Estado</th>
                             <th>Canal</th>
-                            <th>Medio Contacto</th>
                             <th>Fecha Creación</th>
                             <th>Acciones</th>
                         </tr>
@@ -57,7 +56,6 @@
                                     </span>
                                 </td>
                                 <td>{{ $lead->canal->nombre_canal }}</td>
-                                <td>{{ $lead->medioContacto->nombre_medio }}</td>
                                 <td>{{ $lead->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     <div class="btn-group">

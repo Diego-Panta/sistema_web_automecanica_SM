@@ -32,7 +32,8 @@
                             </div>
                             <div class="alert alert-info mt-2 mb-0">
                                 <i class="fas fa-info-circle"></i>
-                                <strong>Información:</strong> Seleccione "Cliente Existente" si el cliente ya está registrado en el sistema, 
+                                <strong>Información:</strong> Seleccione "Cliente Existente" si el cliente ya está
+                                registrado en el sistema,
                                 o "Nuevo Cliente" si necesita crear un nuevo registro de cliente.
                             </div>
                         </div>
@@ -51,7 +52,8 @@
                                         <option value="{{ $cliente->id }}"
                                             {{ old('cliente_id') == $cliente->id ? 'selected' : '' }}>
                                             {{ $cliente->nombre_completo }} -
-                                            {{ $cliente->tipoDocumento->nombre ?? 'Sin documento' }}: {{ $cliente->numero_documento ?? 'N/A' }} -
+                                            {{ $cliente->tipoDocumento->nombre ?? 'Sin documento' }}:
+                                            {{ $cliente->numero_documento ?? 'N/A' }} -
                                             {{ $cliente->celular ?? 'Sin celular' }}
                                         </option>
                                     @endforeach
@@ -199,90 +201,88 @@
                 $('#cliente_id').siblings('.invalid-feedback').hide();
             }
 
+            // Función para configurar campos requeridos dinámicamente
+            function configurarCamposEspecificosPorTipo(tipoSeleccionado) {
+                // Limpiar todos los required de campos específicos
+                $('.campos-especificos input, .campos-especificos select, .campos-especificos textarea').prop(
+                    'required', false);
+
+                if (tipoSeleccionado.includes('compra') || tipoSeleccionado.includes('cotización')) {
+                    $('#tiempo_compra', '#medio_contacto_id').prop('required', true);
+                } else if (tipoSeleccionado.includes('postventa') || tipoSeleccionado.includes('servicio')) {
+                    $('#numero_placa_postventa, #kilometraje, #tipo_servicio_id, #fecha_cita, #horario_cita').prop(
+                        'required', true);
+                } else if (tipoSeleccionado.includes('repuesto') || tipoSeleccionado.includes('cotiza')) {
+                    $('#numero_placa_repuesto').prop('required', true);
+                }
+            }
+
             // Función para configurar campos requeridos
             function configurarCamposRequeridos(tipoCliente) {
                 if (tipoCliente === 'existente') {
                     // Hacer requerido solo el selector de cliente existente
                     $('#cliente_id').prop('required', true);
-                    
+
                     // Remover required de todos los campos de nuevo cliente
                     $('#nuevoClienteSection input, #nuevoClienteSection select').prop('required', false);
-                    
-                    // Remover required de los campos específicos
-                    $('#nombre, #apellido_paterno, #estado_cliente_id').prop('required', false);
-                    
+
                 } else {
                     // Hacer no requerido el selector de cliente existente
                     $('#cliente_id').prop('required', false);
-                    
+
                     // Hacer requeridos solo los campos obligatorios de nuevo cliente
-                    $('#nombre').prop('required', true);
-                    $('#apellido_paterno').prop('required', true);
-                    $('#tipo_documento_id').prop('required', true);
-                    $('#estado_cliente_id').prop('required', true);
-                    
+                    $('#nombre, #apellido_paterno, #tipo_documento_id, #estado_cliente_id').prop('required', true);
+
                     // Los demás campos no son requeridos
-                    $('#apellido_materno, #numero_documento, #celular, #celular_alterno, #correo').prop('required', false);
+                    $('#apellido_materno, #numero_documento, #celular, #celular_alterno, #correo').prop('required',
+                        false);
                 }
             }
 
             // Manejar el cambio entre cliente existente y nuevo
             $('input[name="tipo_cliente"]').change(function() {
                 const tipoCliente = $(this).val();
-                
+
                 if (tipoCliente === 'existente') {
-                    // Mostrar sección de cliente existente
                     $('#clienteExistenteSection').show();
                     $('#nuevoClienteSection').hide();
-                    
-                    // Limpiar y hacer no requeridos los campos de nuevo cliente
                     limpiarCamposNuevoCliente();
-                    
-                    // Limpiar errores de validación del formulario de nuevo cliente
                     $('#nuevoClienteSection .is-invalid').removeClass('is-invalid');
                     $('#nuevoClienteSection .invalid-feedback').hide();
-                    
                 } else {
-                    // Mostrar formulario de nuevo cliente
                     $('#clienteExistenteSection').hide();
                     $('#nuevoClienteSection').show();
-                    
-                    // Limpiar selector de cliente existente
                     limpiarClienteExistente();
-                    
-                    // Limpiar errores de validación del selector de cliente
                     $('#cliente_id').removeClass('is-invalid');
                     $('#cliente_id').siblings('.invalid-feedback').hide();
                 }
-                
-                            // Configurar campos requeridos según el tipo seleccionado
-            configurarCamposRequeridos(tipoCliente);
-        });
 
-        // Manejar el cambio de tipo de lead
-        $('#tipo_id').change(function() {
-            mostrarCamposEspecificos($(this).val());
-        });
+                configurarCamposRequeridos(tipoCliente);
+            });
 
-        // Función para mostrar campos específicos según el tipo de lead
-        function mostrarCamposEspecificos(tipoId) {
-            // Ocultar todos los campos específicos
-            $('.campos-especificos').hide();
-            
-            // Obtener el nombre del tipo seleccionado
-            const tipoSeleccionado = $('#tipo_id option:selected').text().toLowerCase();
-            
-            if (tipoSeleccionado.includes('compra') || tipoSeleccionado.includes('cotización')) {
-                $('#camposCompra').show();
-            } else if (tipoSeleccionado.includes('postventa') || tipoSeleccionado.includes('servicio')) {
-                $('#camposPostventa').show();
-            } else if (tipoSeleccionado.includes('repuesto') || tipoSeleccionado.includes('cotiza')) {
-                $('#camposRepuesto').show();
+            // Manejar el cambio de tipo de lead
+            $('#tipo_id').change(function() {
+                const tipoSeleccionado = $(this).find('option:selected').text().toLowerCase();
+                mostrarCamposEspecificos(tipoSeleccionado);
+                configurarCamposEspecificosPorTipo(tipoSeleccionado);
+            });
+
+            // Función para mostrar campos específicos según el tipo de lead
+            function mostrarCamposEspecificos(tipoSeleccionado) {
+                // Ocultar todos los campos específicos
+                $('.campos-especificos').hide();
+
+                if (tipoSeleccionado.includes('compra') || tipoSeleccionado.includes('cotización')) {
+                    $('#camposCompra').show();
+                } else if (tipoSeleccionado.includes('postventa') || tipoSeleccionado.includes('servicio')) {
+                    $('#camposPostventa').show();
+                } else if (tipoSeleccionado.includes('repuesto') || tipoSeleccionado.includes('cotiza')) {
+                    $('#camposRepuesto').show();
+                }
             }
-        }
 
-        // Validación de campos numéricos
-            $('#numero_documento, #celular, #celular_alterno').on('input', function() {
+            // Validación de campos numéricos
+            $('#numero_documento, #celular, #celular_alterno, #kilometraje').on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
 
@@ -291,7 +291,9 @@
                 if ($(this).val().length > 0 && $(this).val().length > 20) {
                     $(this).addClass('is-invalid');
                     if (!$(this).siblings('.invalid-feedback').length) {
-                        $(this).after('<span class="invalid-feedback"><strong>El número de documento no puede exceder los 20 caracteres.</strong></span>');
+                        $(this).after(
+                            '<span class="invalid-feedback"><strong>El número de documento no puede exceder los 20 caracteres.</strong></span>'
+                            );
                     }
                 } else {
                     $(this).removeClass('is-invalid');
@@ -304,7 +306,9 @@
                 if ($(this).val().length > 0 && $(this).val().length !== 9) {
                     $(this).addClass('is-invalid');
                     if (!$(this).siblings('.invalid-feedback').length) {
-                        $(this).after('<span class="invalid-feedback"><strong>El celular debe tener 9 dígitos.</strong></span>');
+                        $(this).after(
+                            '<span class="invalid-feedback"><strong>El celular debe tener 9 dígitos.</strong></span>'
+                            );
                     }
                 } else {
                     $(this).removeClass('is-invalid');
@@ -312,14 +316,31 @@
                 }
             });
 
+            // Validación para número de placa (formato ABC-123)
+            $('#numero_placa_postventa, #numero_placa_repuesto').on('input', function() {
+                let valor = $(this).val().toUpperCase();
+                // Permitir solo letras, números y guión
+                valor = valor.replace(/[^A-Z0-9-]/g, '');
+                $(this).val(valor);
+            });
+
             // Configurar campos requeridos inicialmente (cliente existente por defecto)
             configurarCamposRequeridos('existente');
 
-            // Mostrar campos específicos según el tipo de lead seleccionado
-            mostrarCamposEspecificos($('#tipo_id').val());
+            // Mostrar campos específicos según el tipo de lead seleccionado inicialmente
+            if ($('#tipo_id').val()) {
+                const tipoSeleccionado = $('#tipo_id option:selected').text().toLowerCase();
+                mostrarCamposEspecificos(tipoSeleccionado);
+                configurarCamposEspecificosPorTipo(tipoSeleccionado);
+            }
 
             // Si hay errores en el formulario de nuevo cliente, mostrar esa sección
-            @if ($errors->has('nombre') || $errors->has('apellido_paterno') || $errors->has('tipo_documento_id') || $errors->has('numero_documento') || $errors->has('estado_cliente_id'))
+            @if (
+                $errors->has('nombre') ||
+                    $errors->has('apellido_paterno') ||
+                    $errors->has('tipo_documento_id') ||
+                    $errors->has('numero_documento') ||
+                    $errors->has('estado_cliente_id'))
                 $('#nuevo_cliente').prop('checked', true).trigger('change');
             @endif
 
@@ -331,37 +352,122 @@
             // Validación del formulario antes de enviar
             $('#leadForm').on('submit', function(e) {
                 let isValid = true;
-                
+                let errores = [];
+
                 // Obtener el tipo de cliente seleccionado
                 const tipoCliente = $('input[name="tipo_cliente"]:checked').val();
-                
+
                 // Limpiar todos los errores previos
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').hide();
-                
+                $('.alert-danger').remove();
+
+                // Validar cliente
                 if (tipoCliente === 'existente') {
-                    // Validar que se haya seleccionado un cliente
                     if (!$('#cliente_id').val()) {
                         $('#cliente_id').addClass('is-invalid');
+                        errores.push('Debe seleccionar un cliente existente.');
                         isValid = false;
                     }
                 } else if (tipoCliente === 'nuevo') {
-                    // Validar campos obligatorios del nuevo cliente
-                    const camposRequeridos = ['#nombre', '#apellido_paterno', '#tipo_documento_id', '#estado_cliente_id'];
-                    camposRequeridos.forEach(campo => {
-                        if (!$(campo).val()) {
-                            $(campo).addClass('is-invalid');
+                    const camposRequeridos = [{
+                            campo: '#nombre',
+                            mensaje: 'El nombre es obligatorio.'
+                        },
+                        {
+                            campo: '#apellido_paterno',
+                            mensaje: 'El apellido paterno es obligatorio.'
+                        },
+                        {
+                            campo: '#tipo_documento_id',
+                            mensaje: 'El tipo de documento es obligatorio.'
+                        },
+                        {
+                            campo: '#estado_cliente_id',
+                            mensaje: 'El estado del cliente es obligatorio.'
+                        }
+                    ];
+
+                    camposRequeridos.forEach(item => {
+                        if (!$(item.campo).val()) {
+                            $(item.campo).addClass('is-invalid');
+                            errores.push(item.mensaje);
                             isValid = false;
                         }
                     });
                 }
-                
+
+                // Validar campos específicos según el tipo de lead
+                const tipoSeleccionado = $('#tipo_id option:selected').text().toLowerCase();
+
+                if (tipoSeleccionado.includes('compra') || tipoSeleccionado.includes('cotización')) {
+                    if (!$('#tiempo_compra').val()) {
+                        $('#tiempo_compra').addClass('is-invalid');
+                        errores.push('El tiempo de compra es obligatorio para leads de compra.');
+                        isValid = false;
+                    }
+                } else if (tipoSeleccionado.includes('postventa') || tipoSeleccionado.includes(
+                    'servicio')) {
+                    const camposPostventa = [{
+                            campo: '#numero_placa_postventa',
+                            mensaje: 'El número de placa es obligatorio.'
+                        },
+                        {
+                            campo: '#kilometraje',
+                            mensaje: 'El kilometraje es obligatorio.'
+                        },
+                        {
+                            campo: '#tipo_servicio_id',
+                            mensaje: 'El tipo de servicio es obligatorio.'
+                        },
+                        {
+                            campo: '#fecha_cita',
+                            mensaje: 'La fecha de cita es obligatoria.'
+                        },
+                        {
+                            campo: '#horario_cita',
+                            mensaje: 'El horario de cita es obligatorio.'
+                        }
+                    ];
+
+                    camposPostventa.forEach(item => {
+                        if (!$(item.campo).val()) {
+                            $(item.campo).addClass('is-invalid');
+                            errores.push(item.mensaje);
+                            isValid = false;
+                        }
+                    });
+                } else if (tipoSeleccionado.includes('repuesto') || tipoSeleccionado.includes('cotiza')) {
+                    const camposRepuesto = [{
+                            campo: '#numero_placa_repuesto',
+                            mensaje: 'El número de placa es obligatorio.'
+                        }
+                    ];
+
+                    camposRepuesto.forEach(item => {
+                        if (!$(item.campo).val()) {
+                            $(item.campo).addClass('is-invalid');
+                            errores.push(item.mensaje);
+                            isValid = false;
+                        }
+                    });
+                }
+
                 if (!isValid) {
                     e.preventDefault();
-                    // Mostrar mensaje de error
-                    if (!$('.alert-danger').length) {
-                        $('<div class="alert alert-danger mt-3">Por favor, complete todos los campos requeridos.</div>').insertBefore('#leadForm .d-flex');
-                    }
+                    // Mostrar mensaje de error con todos los errores
+                    let mensajeError = '<div class="alert alert-danger mt-3"><ul class="mb-0">';
+                    errores.forEach(error => {
+                        mensajeError += `<li>${error}</li>`;
+                    });
+                    mensajeError += '</ul></div>';
+
+                    $(mensajeError).insertBefore('#leadForm .d-flex');
+
+                    // Scroll al primer error
+                    $('html, body').animate({
+                        scrollTop: $('.is-invalid').first().offset().top - 100
+                    }, 500);
                 }
             });
         });

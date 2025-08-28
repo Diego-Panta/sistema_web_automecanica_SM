@@ -60,7 +60,7 @@ class LeadController extends Controller
             'mediosContacto' => MedioContacto::all(),
             'formasRegistro' => FormaRegistro::all(),
             'modelos' => ModeloVehiculo::all(),
-            'clientes' => Cliente::all(), // Agrega esta línea
+            'clientes' => Cliente::all(),
             'tiposDocumento' => TipoDocumento::all(),
             'tiposServicio' => TipoServicio::all()
         ]);
@@ -98,6 +98,20 @@ class LeadController extends Controller
                 ]);
             }
 
+            // Determinar qué campo de placa usar
+            $tipoLead = $this->getTipoLeadFromRequest($request);
+
+            $numeroPlaca = null;
+            $consulta = null;
+
+            if ($tipoLead === 'postventa') {
+                $numeroPlaca = $request->numero_placa_postventa;
+                $consulta = $request->consulta_postventa;
+            } elseif ($tipoLead === 'repuesto') {
+                $numeroPlaca = $request->numero_placa_repuesto;
+                $consulta = $request->consulta_repuesto;
+            }
+
             // Crear el lead asociado al cliente
             $lead = Lead::create([
                 'cliente_id' => $cliente->id,
@@ -108,13 +122,14 @@ class LeadController extends Controller
                 'forma_registro_id' => $request->forma_registro_id,
                 'modelo_id' => $request->modelo_id,
                 'tipo_servicio_id' => $request->tipo_servicio_id,
-                'financiamiento' => $request->financiamiento ?? false,
+                'financiamiento' => $request->has('financiamiento') ? (bool) $request->financiamiento : false,
                 'tiempo_compra' => $request->tiempo_compra,
-                'numero_placa' => $request->numero_placa,
+                'numero_placa' => $numeroPlaca,
                 'kilometraje' => $request->kilometraje,
                 'fecha_cita' => $request->fecha_cita,
                 'horario_cita' => $request->horario_cita,
                 'observacion' => $request->observacion,
+                'consulta' => $consulta, // Nuevo campo
                 'usuario_creador_id' => auth()->id(),
             ]);
 
@@ -124,11 +139,37 @@ class LeadController extends Controller
                 ->with('success', 'Lead creado exitosamente');
         } catch (Throwable $e) {
             DB::rollBack();
-            Log::error("Error al crear lead", ['error' => $e]);
+            Log::error("Error al crear lead", ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Error al crear el lead: ' . $e->getMessage());
         }
+    }
+
+    private function getTipoLeadFromRequest($request): ?string
+    {
+        if (!$request->has('tipo_id')) {
+            return null;
+        }
+
+        try {
+            $tipo = \App\Models\TipoLead::find($request->tipo_id);
+            if (!$tipo) return null;
+
+            $nombreTipo = strtolower($tipo->nombre_tipo);
+
+            if (str_contains($nombreTipo, 'compra') || str_contains($nombreTipo, 'cotización')) {
+                return 'compra';
+            } elseif (str_contains($nombreTipo, 'postventa') || str_contains($nombreTipo, 'servicio')) {
+                return 'postventa';
+            } elseif (str_contains($nombreTipo, 'repuesto') || str_contains($nombreTipo, 'cotiza tu repuesto')) {
+                return 'repuesto';
+            }
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        return null;
     }
 
     /**
@@ -183,8 +224,21 @@ class LeadController extends Controller
     {
         try {
             Log::info("Iniciando actualización del lead", ['lead_id' => $lead->id, 'request_data' => $request->all()]);
-            
+
             DB::beginTransaction();
+
+            $tipoLead = $this->getTipoLeadFromRequest($request);
+
+            $numeroPlaca = $lead->numero_placa;
+            $consulta = $lead->consulta;
+
+            if ($tipoLead === 'postventa') {
+                $numeroPlaca = $request->numero_placa_postventa;
+                $consulta = $request->consulta_postventa;
+            } elseif ($tipoLead === 'repuesto') {
+                $numeroPlaca = $request->numero_placa_repuesto;
+                $consulta = $request->consulta_repuesto;
+            }
 
             $lead->update([
                 'cliente_id' => $request->cliente_id, // Mantener la relación con el cliente
@@ -196,13 +250,14 @@ class LeadController extends Controller
                 'forma_registro_id' => $request->forma_registro_id,
                 'modelo_id' => $request->modelo_id,
                 'tipo_servicio_id' => $request->tipo_servicio_id,
-                'financiamiento' => $request->has('financiamiento'),
+                'financiamiento' => $request->has('financiamiento') ? (bool) $request->financiamiento : false,
                 'tiempo_compra' => $request->tiempo_compra,
-                'numero_placa' => $request->numero_placa,
+                'numero_placa' => $numeroPlaca,
                 'kilometraje' => $request->kilometraje,
                 'fecha_cita' => $request->fecha_cita,
                 'horario_cita' => $request->horario_cita,
                 'observacion' => $request->observacion,
+                'consulta' => $consulta,
                 'fecha_cierre' => $request->fecha_cierre,
             ]);
 
@@ -214,7 +269,7 @@ class LeadController extends Controller
                 ->with('success', 'Lead actualizado exitosamente');
         } catch (Throwable $e) {
             DB::rollBack();
-            Log::error("Error al actualizar lead", ['error' => $e, 'lead_id' => $lead->id]);
+            Log::error("Error al actualizar lead", ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString(), 'lead_id' => $lead->id]);
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Error al actualizar el lead: ' . $e->getMessage());
@@ -237,7 +292,7 @@ class LeadController extends Controller
                 ->with('success', 'Lead eliminado exitosamente');
         } catch (Throwable $e) {
             DB::rollBack();
-            Log::error("Error al eliminar lead", ['error' => $e]);
+            Log::error("Error al eliminar lead", ['error' => $e->getMessage()]);
             return redirect()->route('leads.index')
                 ->with('error', 'Error al eliminar el lead');
         }

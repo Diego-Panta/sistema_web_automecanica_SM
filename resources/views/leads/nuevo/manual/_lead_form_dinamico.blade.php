@@ -9,12 +9,15 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="tiempo_compra" class="field-required">Tiempo Estimado de Compra *</label>
-                        <select name="tiempo_compra" id="tiempo_compra" 
-                               class="form-control @error('tiempo_compra') is-invalid @enderror" required>
+                        <select name="tiempo_compra" id="tiempo_compra"
+                            class="form-control @error('tiempo_compra') is-invalid @enderror" required>
                             <option value="">Seleccione...</option>
-                            <option value="Este mes" {{ old('tiempo_compra') == 'Este mes' ? 'selected' : '' }}>Este mes</option>
-                            <option value="En 1 a 3 meses" {{ old('tiempo_compra') == 'En 1 a 3 meses' ? 'selected' : '' }}>En 1 a 3 meses</option>
-                            <option value="En 3 a 6 meses" {{ old('tiempo_compra') == 'En 3 a 6 meses' ? 'selected' : '' }}>En 3 a 6 meses</option>
+                            <option value="Este mes" {{ old('tiempo_compra') == 'Este mes' ? 'selected' : '' }}>Este mes
+                            </option>
+                            <option value="En 1 a 3 meses"
+                                {{ old('tiempo_compra') == 'En 1 a 3 meses' ? 'selected' : '' }}>En 1 a 3 meses</option>
+                            <option value="En 3 a 6 meses"
+                                {{ old('tiempo_compra') == 'En 3 a 6 meses' ? 'selected' : '' }}>En 3 a 6 meses</option>
                         </select>
                         @error('tiempo_compra')
                             <span class="invalid-feedback" role="alert">
@@ -25,10 +28,30 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
+                        <label for="medio_contacto_id">Medio de Contacto *</label>
+                        <select name="medio_contacto_id" id="medio_contacto_id"
+                            class="form-control @error('medio_contacto_id') is-invalid @enderror">
+                            <option value="">Seleccione</option>
+                            @foreach ($mediosContacto as $medio)
+                                <option value="{{ $medio->id }}"
+                                    {{ old('medio_contacto_id') == $medio->id ? 'selected' : '' }}>
+                                    {{ $medio->nombre_medio }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('medio_contacto_id')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label for="financiamiento">Deseo un Crédito Vehicular</label>
                         <div class="form-check mt-2">
-                            <input type="checkbox" name="financiamiento" id="financiamiento" 
-                                   class="form-check-input" value="1" {{ old('financiamiento') ? 'checked' : '' }}>
+                            <input type="checkbox" name="financiamiento" id="financiamiento" class="form-check-input"
+                                value="1" {{ old('financiamiento') ? 'checked' : '' }}>
                             <label class="form-check-label" for="financiamiento">Sí, deseo financiamiento</label>
                         </div>
                     </div>
@@ -48,11 +71,11 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="numero_placa" class="field-required">Número de Placa *</label>
-                        <input type="text" name="numero_placa" id="numero_placa" 
-                               class="form-control @error('numero_placa') is-invalid @enderror" 
-                               value="{{ old('numero_placa') }}" maxlength="10" placeholder="ABC-123">
-                        @error('numero_placa')
+                        <label for="numero_placa_postventa" class="field-required">Número de Placa *</label>
+                        <input type="text" name="numero_placa_postventa" id="numero_placa_postventa"
+                            class="form-control @error('numero_placa_postventa') is-invalid @enderror"
+                            value="{{ old('numero_placa_postventa') }}" maxlength="10" placeholder="ABC-123">
+                        @error('numero_placa_postventa')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
@@ -62,9 +85,9 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="kilometraje" class="field-required">Kilometraje *</label>
-                        <input type="number" name="kilometraje" id="kilometraje" 
-                               class="form-control @error('kilometraje') is-invalid @enderror" 
-                               value="{{ old('kilometraje') }}" min="0" placeholder="50000">
+                        <input type="number" name="kilometraje" id="kilometraje"
+                            class="form-control @error('kilometraje') is-invalid @enderror"
+                            value="{{ old('kilometraje') }}" min="0" placeholder="50000">
                         @error('kilometraje')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -75,12 +98,13 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="tipo_servicio_id" class="field-required">Tipo de Servicio *</label>
-                        <select name="tipo_servicio_id" id="tipo_servicio_id" 
-                               class="form-control @error('tipo_servicio_id') is-invalid @enderror" required>
+                        <select name="tipo_servicio_id" id="tipo_servicio_id"
+                            class="form-control @error('tipo_servicio_id') is-invalid @enderror" required>
                             <option value="">Seleccione...</option>
-                            @foreach($tiposServicio as $tipo)
-                                <option value="{{ $tipo->id }}" {{ old('tipo_servicio_id') == $tipo->id ? 'selected' : '' }}>
-                                    {{ $tipo->nombre_tipo }}
+                            @foreach ($tiposServicio as $tipo)
+                                <option value="{{ $tipo->id }}"
+                                    {{ old('tipo_servicio_id') == $tipo->id ? 'selected' : '' }}>
+                                    {{ $tipo->nombre }}
                                 </option>
                             @endforeach
                         </select>
@@ -96,9 +120,9 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="fecha_cita" class="field-required">Fecha de la Cita *</label>
-                        <input type="date" name="fecha_cita" id="fecha_cita" 
-                               class="form-control @error('fecha_cita') is-invalid @enderror" 
-                               value="{{ old('fecha_cita') }}" required>
+                        <input type="date" name="fecha_cita" id="fecha_cita"
+                            class="form-control @error('fecha_cita') is-invalid @enderror"
+                            value="{{ old('fecha_cita') }}" required>
                         @error('fecha_cita')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -109,14 +133,34 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="horario_cita" class="field-required">Horarios Disponibles *</label>
-                        <select name="horario_cita" id="horario_cita" 
-                               class="form-control @error('horario_cita') is-invalid @enderror" required>
+                        <select name="horario_cita" id="horario_cita"
+                            class="form-control @error('horario_cita') is-invalid @enderror" required>
                             <option value="">Seleccione...</option>
-                            <option value="Mañana (8:00 - 12:00)" {{ old('horario_cita') == 'Mañana (8:00 - 12:00)' ? 'selected' : '' }}>Mañana (8:00 - 12:00)</option>
-                            <option value="Tarde (13:00 - 17:00)" {{ old('horario_cita') == 'Tarde (13:00 - 17:00)' ? 'selected' : '' }}>Tarde (13:00 - 17:00)</option>
-                            <option value="Noche (18:00 - 20:00)" {{ old('horario_cita') == 'Noche (18:00 - 20:00)' ? 'selected' : '' }}>Noche (18:00 - 20:00)</option>
+                            <option value="Mañana (8:00 - 12:00)"
+                                {{ old('horario_cita') == 'Mañana (8:00 - 12:00)' ? 'selected' : '' }}>Mañana (8:00 -
+                                12:00)</option>
+                            <option value="Tarde (13:00 - 17:00)"
+                                {{ old('horario_cita') == 'Tarde (13:00 - 17:00)' ? 'selected' : '' }}>Tarde (13:00 -
+                                17:00)</option>
+                            <option value="Noche (18:00 - 20:00)"
+                                {{ old('horario_cita') == 'Noche (18:00 - 20:00)' ? 'selected' : '' }}>Noche (18:00 -
+                                20:00)</option>
                         </select>
                         @error('horario_cita')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="consulta_postventa">Consulta/Observaciones</label>
+                        <textarea name="consulta_postventa" id="consulta_postventa" class="form-control @error('consulta_postventa') is-invalid @enderror"
+                            rows="3" placeholder="Describe el motivo de la cita o consulta...">{{ old('consulta_postventa') }}</textarea>
+                        @error('consulta_postventa')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
@@ -139,10 +183,10 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="numero_placa_repuesto" class="field-required">Número de Placa *</label>
-                        <input type="text" name="numero_placa" id="numero_placa_repuesto" 
-                               class="form-control @error('numero_placa') is-invalid @enderror" 
-                               value="{{ old('numero_placa') }}" maxlength="10" placeholder="ABC-123">
-                        @error('numero_placa')
+                        <input type="text" name="numero_placa_repuesto" id="numero_placa_repuesto"
+                            class="form-control @error('numero_placa_repuesto') is-invalid @enderror"
+                            value="{{ old('numero_placa_repuesto') }}" maxlength="10" placeholder="ABC-123">
+                        @error('numero_placa_repuesto')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
@@ -151,11 +195,10 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="observacion_repuesto">Consulta</label>
-                        <textarea name="observacion" id="observacion_repuesto" 
-                                  class="form-control @error('observacion') is-invalid @enderror" 
-                                  rows="3" placeholder="Describe qué repuesto necesitas...">{{ old('observacion') }}</textarea>
-                        @error('observacion')
+                        <label for="consulta_repuesto" class="field-required">Consulta *</label>
+                        <textarea name="consulta_repuesto" id="consulta_repuesto" class="form-control @error('consulta_repuesto') is-invalid @enderror"
+                            rows="3" placeholder="Describe qué repuesto necesitas...">{{ old('consulta_repuesto') }}</textarea>
+                        @error('consulta_repuesto')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>

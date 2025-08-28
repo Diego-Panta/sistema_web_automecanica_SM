@@ -119,7 +119,7 @@ class Lead extends Model
                 'tipo_servicio' => $this->tipoServicio->nombre_tipo ?? 'N/A',
                 'fecha_cita' => $this->fecha_cita ? $this->fecha_cita->format('d/m/Y') : 'N/A',
                 'horario_cita' => $this->horario_cita ?? 'N/A',
-                'consulta' => $this->observacion ?? 'N/A'
+                'consulta' => $this->consulta ?? $this->observacion ?? 'N/A'
             ];
         } elseif ($this->isRepuesto()) {
             return [
@@ -130,7 +130,7 @@ class Lead extends Model
                 'email' => $this->cliente->correo ?? 'N/A',
                 'marca' => $this->modeloVehiculo->marcaVehiculo->nombre_marca ?? 'N/A',
                 'numero_placa' => $this->numero_placa ?? 'N/A',
-                'consulta' => $this->observacion ?? 'N/A'
+                'consulta' => $this->consulta ?? $this->observacion ?? 'N/A'
             ];
         }
 

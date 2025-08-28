@@ -26,46 +26,33 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Cliente:</strong> 
+                            <p><strong>Cliente:</strong>
                                 <a href="{{ route('clientes.show', $lead->cliente_id) }}" target="_blank">
                                     {{ $lead->cliente->nombre_completo }}
                                 </a>
                             </p>
-                            <p><strong>Tipo:</strong> 
-                                <span class="badge" style="background-color: {{ $lead->tipo->color ?? '#6c757d' }}; color: white;">
+                            <p><strong>Tipo:</strong>
+                                <span class="badge"
+                                    style="background-color: {{ $lead->tipo->color ?? '#6c757d' }}; color: white;">
                                     {{ $lead->tipo->nombre_tipo }}
                                 </span>
                             </p>
-                            <p><strong>Estado:</strong> 
+                            <p><strong>Estado:</strong>
                                 <span class="badge badge-{{ $lead->estadoActual->clase ?? 'secondary' }}">
                                     {{ $lead->estadoActual->nombre_estado }}
                                 </span>
                             </p>
-                            <p><strong>Resultado:</strong> 
+                            <p><strong>Resultado:</strong>
                                 {{ $lead->resultado->nombre_resultado ?? 'N/A' }}
                             </p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Canal:</strong> {{ $lead->canal->nombre_canal }}</p>
-                            <p><strong>Medio Contacto:</strong> {{ $lead->medioContacto->nombre_medio }}</p>
                             <p><strong>Forma Registro:</strong> {{ $lead->formaRegistro->nombre_forma }}</p>
                             <p><strong>Modelo:</strong> {{ $lead->modeloVehiculo->nombre_modelo ?? 'N/A' }}</p>
                         </div>
                     </div>
-                    
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <p><strong>Financiamiento:</strong> 
-                                {{ $lead->financiamiento ? 'Sí' : 'No' }}
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Tiempo Compra:</strong> 
-                                {{ $lead->tiempo_compra ?? 'No especificado' }}
-                            </p>
-                        </div>
-                    </div>
-                    
+
                     <div class="mt-3">
                         <p><strong>Observaciones:</strong></p>
                         <div class="border p-3 rounded">
@@ -74,13 +61,14 @@
                     </div>
 
                     <!-- Campos Específicos según el Tipo de Lead -->
-                    @if($lead->isCompra())
+                    @if ($lead->isCompra())
                         <div class="mt-3">
                             <h6 class="text-success"><i class="fas fa-car"></i> Información de Compra</h6>
                             <div class="row">
                                 <div class="col-md-6">
                                     <p><strong>Tiempo de Compra:</strong> {{ $lead->tiempo_compra ?? 'N/A' }}</p>
                                     <p><strong>Financiamiento:</strong> {{ $lead->financiamiento ? 'Sí' : 'No' }}</p>
+                                    <p><strong>Medio Contacto:</strong> {{ $lead->medioContacto->nombre_medio }}</p>
                                 </div>
                             </div>
                         </div>
@@ -91,12 +79,18 @@
                                 <div class="col-md-6">
                                     <p><strong>Número de Placa:</strong> {{ $lead->numero_placa ?? 'N/A' }}</p>
                                     <p><strong>Kilometraje:</strong> {{ $lead->kilometraje ?? 'N/A' }} km</p>
-                                    <p><strong>Tipo de Servicio:</strong> {{ $lead->tipoServicio->nombre_tipo ?? 'N/A' }}</p>
+                                    <p><strong>Tipo de Servicio:</strong> {{ $lead->tipoServicio->nombre ?? 'N/A' }}
+                                    </p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Fecha de Cita:</strong> {{ $lead->fecha_cita ? $lead->fecha_cita->format('d/m/Y') : 'N/A' }}</p>
+                                    <p><strong>Fecha de Cita:</strong>
+                                        {{ $lead->fecha_cita ? $lead->fecha_cita->format('d/m/Y') : 'N/A' }}</p>
                                     <p><strong>Horario:</strong> {{ $lead->horario_cita ?? 'N/A' }}</p>
                                 </div>
+                            </div>
+                            <p><strong>Consulta:</strong></p>
+                            <div class="border p-3 rounded">
+                                {{ $lead->consulta ?? 'Sin consultas' }}
                             </div>
                         </div>
                     @elseif($lead->isRepuesto())
@@ -107,20 +101,24 @@
                                     <p><strong>Número de Placa:</strong> {{ $lead->numero_placa ?? 'N/A' }}</p>
                                 </div>
                             </div>
+                            <p><strong>Consulta:</strong></p>
+                            <div class="border p-3 rounded">
+                                {{ $lead->consulta ?? 'Sin consultas' }}
+                            </div>
                         </div>
                     @endif
                 </div>
             </div>
-            
+
             <!-- Historial de estados -->
             <div class="card mt-4">
                 <div class="card-header">
                     <h3 class="card-title">Historial de Estados</h3>
                 </div>
                 <div class="card-body">
-                    @if($lead->historialEstados->count() > 0)
+                    @if ($lead->historialEstados->count() > 0)
                         <div class="timeline">
-                            @foreach($lead->historialEstados as $historial)
+                            @foreach ($lead->historialEstados as $historial)
                                 <div class="time-label">
                                     <span class="bg-{{ $historial->estado->clase ?? 'info' }}">
                                         {{ $historial->created_at->format('d M. Y') }}
@@ -130,7 +128,7 @@
                                     <i class="fas fa-tag bg-{{ $historial->estado->clase ?? 'info' }}"></i>
                                     <div class="timeline-item">
                                         <span class="time">
-                                            <i class="fas fa-clock"></i> 
+                                            <i class="fas fa-clock"></i>
                                             {{ $historial->created_at->format('H:i') }}
                                         </span>
                                         <h3 class="timeline-header">
@@ -155,7 +153,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4">
             <!-- Información adicional -->
             <div class="card">
@@ -166,21 +164,21 @@
                     <p><strong>Creado por:</strong> {{ $lead->creador->name ?? 'Sistema' }}</p>
                     <p><strong>Fecha creación:</strong> {{ $lead->created_at->format('d/m/Y H:i') }}</p>
                     <p><strong>Última actualización:</strong> {{ $lead->updated_at->format('d/m/Y H:i') }}</p>
-                    @if($lead->fecha_cierre)
+                    @if ($lead->fecha_cierre)
                         <p><strong>Fecha cierre:</strong> {{ $lead->fecha_cierre->format('d/m/Y H:i') }}</p>
                     @endif
                 </div>
             </div>
-            
+
             <!-- Asignaciones -->
             <div class="card mt-4">
                 <div class="card-header">
                     <h3 class="card-title">Asignaciones</h3>
                 </div>
                 <div class="card-body">
-                    @if($lead->asignaciones->count() > 0)
+                    @if ($lead->asignaciones->count() > 0)
                         <ul class="list-group">
-                            @foreach($lead->asignaciones as $asignacion)
+                            @foreach ($lead->asignaciones as $asignacion)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <strong>{{ $asignacion->usuarioAsignado->name }}</strong>
@@ -201,16 +199,16 @@
                     @endif
                 </div>
             </div>
-            
+
             <!-- Acciones realizadas -->
             <div class="card mt-4">
                 <div class="card-header">
                     <h3 class="card-title">Acciones Realizadas</h3>
                 </div>
                 <div class="card-body">
-                    @if($lead->accionesRealizadas->count() > 0)
+                    @if ($lead->accionesRealizadas->count() > 0)
                         <ul class="list-unstyled">
-                            @foreach($lead->accionesRealizadas as $accion)
+                            @foreach ($lead->accionesRealizadas as $accion)
                                 <li class="mb-3">
                                     <div class="d-flex justify-content-between">
                                         <strong>{{ $accion->accion->nombre }}</strong>
@@ -221,7 +219,7 @@
                                     <div class="small text-muted">
                                         Realizada por: {{ $accion->usuario->name }}
                                     </div>
-                                    @if($accion->comentario)
+                                    @if ($accion->comentario)
                                         <div class="border-left pl-2 mt-1">
                                             {{ $accion->comentario }}
                                         </div>
@@ -244,11 +242,13 @@
             font-size: 0.9em;
             padding: 0.35em 0.65em;
         }
+
         .timeline {
             position: relative;
             padding: 0 0 0 1em;
             margin: 0 0 1em 0;
         }
+
         .timeline:before {
             content: '';
             position: absolute;
@@ -259,26 +259,31 @@
             left: 2em;
             margin-left: -2px;
         }
-        .timeline > .time-label > span {
+
+        .timeline>.time-label>span {
             font-weight: 600;
             padding: 5px 10px;
             color: #fff;
             border-radius: 4px;
         }
-        .timeline > div {
+
+        .timeline>div {
             margin-bottom: 15px;
             position: relative;
         }
-        .timeline > div:before, 
-        .timeline > div:after {
+
+        .timeline>div:before,
+        .timeline>div:after {
             content: "";
             display: table;
         }
-        .timeline > div:after {
+
+        .timeline>div:after {
             clear: both;
         }
-        .timeline > div > .timeline-item {
-            box-shadow: 0 0 1px rgba(0,0,0,0.1);
+
+        .timeline>div>.timeline-item {
+            box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
             border-radius: 3px;
             margin-top: 0;
             background: #fff;
@@ -287,13 +292,15 @@
             padding: 0;
             position: relative;
         }
-        .timeline > div > .timeline-item > .time {
+
+        .timeline>div>.timeline-item>.time {
             color: #999;
             float: right;
             padding: 10px;
             font-size: 12px;
         }
-        .timeline > div > .timeline-item > .timeline-header {
+
+        .timeline>div>.timeline-item>.timeline-header {
             margin: 0;
             color: #555;
             border-bottom: 1px solid #f4f4f4;
@@ -301,11 +308,13 @@
             font-size: 16px;
             line-height: 1.1;
         }
-        .timeline > div > .timeline-item > .timeline-body, 
-        .timeline > div > .timeline-item > .timeline-footer {
+
+        .timeline>div>.timeline-item>.timeline-body,
+        .timeline>div>.timeline-item>.timeline-footer {
             padding: 10px;
         }
-        .timeline > div > i {
+
+        .timeline>div>i {
             width: 2em;
             height: 2em;
             font-size: 1em;

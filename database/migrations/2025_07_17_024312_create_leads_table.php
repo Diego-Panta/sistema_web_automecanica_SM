@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('estado_actual_id')->constrained('estado_leads')->restrictOnDelete();
             $table->foreignId('resultado_id')->nullable()->constrained('resultado_leads')->nullOnDelete();
             $table->foreignId('usuario_creador_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('medio_contacto_id')->constrained('medio_contactos')->restrictOnDelete();
+            $table->foreignId('medio_contacto_id')->nullable()->constrained('medio_contactos')->nullOnDelete();
             $table->foreignId('forma_registro_id')->constrained('forma_registros')->restrictOnDelete();
             $table->foreignId('modelo_id')->nullable()->constrained('modelo_vehiculos')->nullOnDelete();
             $table->foreignId('tipo_servicio_id')->nullable()->constrained('tipo_servicios')->nullOnDelete(); // Nuevo
