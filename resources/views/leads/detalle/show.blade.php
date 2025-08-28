@@ -49,7 +49,7 @@
                         <div class="col-md-6">
                             <p><strong>Canal:</strong> {{ $lead->canal->nombre_canal }}</p>
                             <p><strong>Forma Registro:</strong> {{ $lead->formaRegistro->nombre_forma }}</p>
-                            <p><strong>Modelo:</strong> {{ $lead->modeloVehiculo->nombre_modelo ?? 'N/A' }}</p>
+                            <p><strong>Marca:</strong> {{ $lead->marca->nombre_marca ?? 'N/A' }}</p>
                         </div>
                     </div>
 

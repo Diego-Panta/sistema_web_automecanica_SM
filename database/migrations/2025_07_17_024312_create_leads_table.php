@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('usuario_creador_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('medio_contacto_id')->nullable()->constrained('medio_contactos')->nullOnDelete();
             $table->foreignId('forma_registro_id')->constrained('forma_registros')->restrictOnDelete();
-            $table->foreignId('modelo_id')->nullable()->constrained('modelo_vehiculos')->nullOnDelete();
+            $table->foreignId('marca_id')->nullable()->constrained('marca_vehiculos')->nullOnDelete();
             $table->foreignId('tipo_servicio_id')->nullable()->constrained('tipo_servicios')->nullOnDelete(); // Nuevo
             $table->boolean('financiamiento')->default(false);
             $table->string('tiempo_compra', 100)->nullable();

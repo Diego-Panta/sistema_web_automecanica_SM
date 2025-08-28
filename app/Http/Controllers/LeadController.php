@@ -11,7 +11,7 @@ use App\Models\ResultadoLead;
 use App\Models\MedioContacto;
 use App\Models\FormaRegistro;
 use App\Models\EstadoCliente;
-use App\Models\ModeloVehiculo;
+use App\Models\MarcaVehiculo;
 use App\Models\TipoDocumento;
 use App\Models\TipoServicio;
 use App\Http\Requests\StoreLeadRequest;
@@ -59,7 +59,7 @@ class LeadController extends Controller
             'estadosLead' => EstadoLead::all(),
             'mediosContacto' => MedioContacto::all(),
             'formasRegistro' => FormaRegistro::all(),
-            'modelos' => ModeloVehiculo::all(),
+            'marcas' => MarcaVehiculo::all(),
             'clientes' => Cliente::all(),
             'tiposDocumento' => TipoDocumento::all(),
             'tiposServicio' => TipoServicio::all()
@@ -120,7 +120,7 @@ class LeadController extends Controller
                 'estado_actual_id' => $request->estado_actual_id,
                 'medio_contacto_id' => $request->medio_contacto_id,
                 'forma_registro_id' => $request->forma_registro_id,
-                'modelo_id' => $request->modelo_id,
+                'marca_id' => $request->marca_id,
                 'tipo_servicio_id' => $request->tipo_servicio_id,
                 'financiamiento' => $request->has('financiamiento') ? (bool) $request->financiamiento : false,
                 'tiempo_compra' => $request->tiempo_compra,
@@ -185,7 +185,7 @@ class LeadController extends Controller
             'canal',
             'medioContacto',
             'formaRegistro',
-            'modeloVehiculo',
+            'marca',
             'tipoServicio',
             'creador',
             'asignaciones.usuarioAsignado',
@@ -211,7 +211,7 @@ class LeadController extends Controller
             'resultados' => ResultadoLead::all(),
             'mediosContacto' => MedioContacto::all(),
             'formasRegistro' => FormaRegistro::all(),
-            'modelos' => ModeloVehiculo::all(),
+            'marcas' => MarcaVehiculo::all(),
             'tiposDocumento' => TipoDocumento::all(),
             'tiposServicio' => TipoServicio::all()
         ]);
@@ -248,7 +248,7 @@ class LeadController extends Controller
                 'resultado_id' => $request->resultado_id,
                 'medio_contacto_id' => $request->medio_contacto_id,
                 'forma_registro_id' => $request->forma_registro_id,
-                'modelo_id' => $request->modelo_id,
+                'marca_id' => $request->marca_id,
                 'tipo_servicio_id' => $request->tipo_servicio_id,
                 'financiamiento' => $request->has('financiamiento') ? (bool) $request->financiamiento : false,
                 'tiempo_compra' => $request->tiempo_compra,

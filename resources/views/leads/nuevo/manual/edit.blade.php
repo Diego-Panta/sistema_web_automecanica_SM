@@ -153,18 +153,18 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="modelo_id">Modelo de Vehículo</label>
-                                    <select name="modelo_id" id="modelo_id" 
-                                            class="form-control @error('modelo_id') is-invalid @enderror">
+                                    <label for="marca_id">Marca de Vehículo</label>
+                                    <select name="marca_id" id="marca_id" 
+                                            class="form-control @error('marca_id') is-invalid @enderror">
                                         <option value="">Seleccione</option>
-                                        @foreach($modelos as $modelo)
-                                            <option value="{{ $modelo->id }}" 
-                                                {{ $lead->modelo_id == $modelo->id ? 'selected' : '' }}>
-                                                {{ $modelo->nombre_modelo }}
+                                        @foreach($marcas as $marca)
+                                            <option value="{{ $marca->id }}" 
+                                                {{ $lead->marca_id == $marca->id ? 'selected' : '' }}>
+                                                {{ $marca->nombre_marca }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('modelo_id')
+                                    @error('marca_id')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>

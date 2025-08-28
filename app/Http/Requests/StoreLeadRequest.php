@@ -24,7 +24,7 @@ class StoreLeadRequest extends FormRequest
             'estado_actual_id' => 'required|exists:estado_leads,id',
             'medio_contacto_id' => 'nullable|exists:medio_contactos,id',
             'forma_registro_id' => 'required|exists:forma_registros,id',
-            'modelo_id' => 'nullable|exists:modelo_vehiculos,id',
+            'marca_id' => 'nullable|exists:marca_vehiculos,id',
             'financiamiento' => 'nullable|boolean',
             'tiempo_compra' => 'nullable|string|max:100',
             'observacion' => 'nullable|string',
