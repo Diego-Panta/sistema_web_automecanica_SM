@@ -18,6 +18,7 @@ use App\Http\Requests\StoreLeadRequest;
 use App\Http\Requests\UpdateLeadRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 
@@ -130,7 +131,7 @@ class LeadController extends Controller
                 'horario_cita' => $request->horario_cita,
                 'observacion' => $request->observacion,
                 'consulta' => $consulta, // Nuevo campo
-                'usuario_creador_id' => auth()->id(),
+                'usuario_creador_id' => Auth::id(),
             ]);
 
             DB::commit();
