@@ -12,7 +12,7 @@ class Lead extends Model
     protected $fillable = [
         'cliente_id', 'canal_id', 'tipo_id', 'estado_actual_id',
         'resultado_id', 'usuario_creador_id', 'medio_contacto_id',
-        'forma_registro_id', 'marca_id', 'tipo_servicio_id',
+        'forma_registro_id', 'modelo_id', 'tipo_servicio_id',
         'financiamiento', 'tiempo_compra', 'numero_placa', 'kilometraje',
         'fecha_cita', 'horario_cita', 'observacion', 'consulta', 'fecha_cierre'
     ];
@@ -34,7 +34,7 @@ class Lead extends Model
     public function formaRegistro() { return $this->belongsTo(FormaRegistro::class, 'forma_registro_id'); }
 
     public function tipoServicio() { return $this->belongsTo(TipoServicio::class, 'tipo_servicio_id'); }
-    public function marca() { return $this->belongsTo(MarcaVehiculo::class, 'marca_id'); }
+    public function modeloVehiculo() { return $this->belongsTo(ModeloVehiculo::class, 'modelo_id'); }
 
     // RELACIONES ACTUALIZADAS:
     
@@ -99,7 +99,8 @@ class Lead extends Model
         if ($this->isCompra()) {
             return [
                 'tipo_documento' => $this->cliente->tipoDocumento->nombre ?? 'N/A',
-                'marca' => $this->marca->nombre_marca ?? 'N/A',
+                'marca' => $this->modeloVehiculo->marca->nombre_marca ?? 'N/A',
+                'modelo' => $this->modeloVehiculo->nombre_modelo ?? 'N/A',
                 'nombre' => $this->cliente->nombre ?? 'N/A',
                 'apellidos' => trim($this->cliente->apellido_paterno . ' ' . ($this->cliente->apellido_materno ?? '')),
                 'telefono' => $this->cliente->celular ?? 'N/A',
@@ -114,7 +115,8 @@ class Lead extends Model
                 'nombres_completos' => $this->cliente->nombre_completo ?? 'N/A',
                 'telefono' => $this->cliente->celular ?? 'N/A',
                 'email' => $this->cliente->correo ?? 'N/A',
-                'marca' => $this->marca->nombre_marca ?? 'N/A',
+                'marca' => $this->modeloVehiculo->marca->nombre_marca ?? 'N/A',
+                'modelo' => $this->modeloVehiculo->nombre_modelo ?? 'N/A',
                 'numero_placa' => $this->numero_placa ?? 'N/A',
                 'kilometraje' => $this->kilometraje ?? 'N/A',
                 'tipo_servicio' => $this->tipoServicio->nombre_tipo ?? 'N/A',
@@ -129,7 +131,8 @@ class Lead extends Model
                 'apellido' => $this->cliente->apellido_paterno ?? 'N/A',
                 'telefono' => $this->cliente->celular ?? 'N/A',
                 'email' => $this->cliente->correo ?? 'N/A',
-                'marca' => $this->marca->nombre_marca ?? 'N/A',
+                'marca' => $this->modeloVehiculo->marca->nombre_marca ?? 'N/A',
+                'modelo' => $this->modeloVehiculo->nombre_modelo ?? 'N/A',
                 'numero_placa' => $this->numero_placa ?? 'N/A',
                 'consulta' => $this->consulta ?? $this->observacion ?? 'N/A'
             ];

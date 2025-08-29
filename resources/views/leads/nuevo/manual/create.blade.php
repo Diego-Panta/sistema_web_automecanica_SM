@@ -179,6 +179,9 @@
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        var modelosPorMarcaUrl = "{{ route('leads.modelos.por.marca', ['marcaId' => ':marcaId']) }}";
+    </script>
+    <script>
         $(document).ready(function() {
             // Inicializar select2
             $('#cliente_id').select2({
@@ -293,7 +296,7 @@
                     if (!$(this).siblings('.invalid-feedback').length) {
                         $(this).after(
                             '<span class="invalid-feedback"><strong>El número de documento no puede exceder los 20 caracteres.</strong></span>'
-                            );
+                        );
                     }
                 } else {
                     $(this).removeClass('is-invalid');
@@ -308,7 +311,7 @@
                     if (!$(this).siblings('.invalid-feedback').length) {
                         $(this).after(
                             '<span class="invalid-feedback"><strong>El celular debe tener 9 dígitos.</strong></span>'
-                            );
+                        );
                     }
                 } else {
                     $(this).removeClass('is-invalid');
@@ -407,7 +410,7 @@
                         isValid = false;
                     }
                 } else if (tipoSeleccionado.includes('postventa') || tipoSeleccionado.includes(
-                    'servicio')) {
+                        'servicio')) {
                     const camposPostventa = [{
                             campo: '#numero_placa_postventa',
                             mensaje: 'El número de placa es obligatorio.'
@@ -439,10 +442,9 @@
                     });
                 } else if (tipoSeleccionado.includes('repuesto') || tipoSeleccionado.includes('cotiza')) {
                     const camposRepuesto = [{
-                            campo: '#numero_placa_repuesto',
-                            mensaje: 'El número de placa es obligatorio.'
-                        }
-                    ];
+                        campo: '#numero_placa_repuesto',
+                        mensaje: 'El número de placa es obligatorio.'
+                    }];
 
                     camposRepuesto.forEach(item => {
                         if (!$(item.campo).val()) {
@@ -471,5 +473,48 @@
                 }
             });
         });
+    </script>
+    <script>
+        $('#marca_id').change(function() {
+            const marcaId = $(this).val();
+            const modeloSelect = $('#modelo_id');
+
+            if (marcaId) {
+                // Habilitar el select de modelos
+                modeloSelect.prop('disabled', false);
+
+                // Cargar modelos por marca via AJAX
+                $.ajax({
+                    url: modelosPorMarcaUrl.replace(':marcaId', marcaId),
+                    type: 'GET',
+                    success: function(data) {
+                        modeloSelect.empty().append('<option value="">Seleccione el modelo</option>');
+
+                        $.each(data, function(key, modelo) {
+                            modeloSelect.append(
+                                `<option value="${modelo.id}">${modelo.nombre_modelo}</option>`
+                            );
+                        });
+
+                        // Seleccionar valor antiguo si existe
+                        @if (old('modelo_id'))
+                            modeloSelect.val('{{ old('modelo_id') }}');
+                        @endif
+                    },
+                    error: function() {
+                        console.error('Error al cargar modelos');
+                    }
+                });
+            } else {
+                // Deshabilitar y limpiar si no hay marca seleccionada
+                modeloSelect.prop('disabled', true).empty().append(
+                    '<option value="">Primero seleccione una marca</option>');
+            }
+        });
+
+        // Trigger change al cargar la página si ya hay una marca seleccionada
+        @if (old('marca_id'))
+            $('#marca_id').trigger('change');
+        @endif
     </script>
 @stop

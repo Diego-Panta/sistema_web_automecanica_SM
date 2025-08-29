@@ -95,6 +95,9 @@ Route::prefix('leads')->group(function () {
     Route::put('/{lead}', [LeadController::class, 'update'])->name('leads.update');
     Route::delete('/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
     
+    //Manejar marca
+    Route::get('/modelos-por-marca/{marcaId}', [LeadController::class, 'getModelosPorMarca'])->name('leads.modelos.por.marca');
+
     // Rutas adicionales
     Route::get('/import', [LeadController::class, 'import'])->name('leads.import');
     Route::post('/import', [LeadController::class, 'processImport'])->name('leads.process.import');

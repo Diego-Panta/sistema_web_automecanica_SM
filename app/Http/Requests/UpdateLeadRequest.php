@@ -32,6 +32,7 @@ class UpdateLeadRequest extends FormRequest
             'medio_contacto_id' => 'nullable|exists:medio_contactos,id',
             'forma_registro_id' => 'required|exists:forma_registros,id',
             'marca_id' => 'nullable|exists:marca_vehiculos,id',
+            'modelo_id' => 'nullable|exists:modelo_vehiculos,id',
             'tipo_servicio_id' => 'nullable|exists:tipo_servicios,id',
             'financiamiento' => 'nullable|boolean',
             'tiempo_compra' => 'nullable|string|max:100',
@@ -50,7 +51,7 @@ class UpdateLeadRequest extends FormRequest
         $leadActual = $this->route('lead'); // Obtiene el lead desde la ruta
         if ($leadActual) {
             $tipoLead = $this->getTipoLeadActualizado($leadActual);
-            
+
             if ($tipoLead === 'postventa') {
                 $rules['numero_placa_postventa'] = 'required|string|max:10';
                 $rules['kilometraje'] = 'required|integer|min:0';
@@ -87,7 +88,7 @@ class UpdateLeadRequest extends FormRequest
         if (!$tipo) return null;
 
         $nombreTipo = strtolower($tipo->nombre_tipo);
-        
+
         if (str_contains($nombreTipo, 'compra') || str_contains($nombreTipo, 'cotización')) {
             return 'compra';
         } elseif (str_contains($nombreTipo, 'postventa') || str_contains($nombreTipo, 'servicio')) {
@@ -102,12 +103,21 @@ class UpdateLeadRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'cliente_id.exists' => 'El cliente seleccionado no existe.',
             'canal_id.required' => 'El canal es obligatorio.',
+            'canal_id.exists' => 'El canal seleccionado no es válido.',
             'tipo_id.required' => 'El tipo de lead es obligatorio.',
+            'tipo_id.exists' => 'El tipo de lead seleccionado no es válido.',
             'estado_actual_id.required' => 'El estado actual es obligatorio.',
+            'estado_actual_id.exists' => 'El estado actual seleccionado no es válido.',
+            'resultado_id.exists' => 'El resultado seleccionado no es válido.',
+            'medio_contacto_id.exists' => 'El medio de contacto seleccionado no es válido.',
             'forma_registro_id.required' => 'La forma de registro es obligatoria.',
+            'forma_registro_id.exists' => 'La forma de registro seleccionada no es válida.',
+            'modelo_id.exists' => 'El modelo de vehículo seleccionado no es válido.',
             'tipo_servicio_id.exists' => 'El tipo de servicio seleccionado no es válido.',
-            'tipo_servicio_id.required' => 'El tipo de servicio es obligatorio para leads de postventa.',
+            'financiamiento.boolean' => 'El campo financiamiento debe ser verdadero o falso.',
+            'tiempo_compra.max' => 'El tiempo de compra no puede exceder los 100 caracteres.',
             'numero_placa_postventa.max' => 'El número de placa no puede exceder los 10 caracteres.',
             'numero_placa_repuesto.max' => 'El número de placa no puede exceder los 10 caracteres.',
             'numero_placa_postventa.required' => 'El número de placa es obligatorio para postventa.',
@@ -120,7 +130,7 @@ class UpdateLeadRequest extends FormRequest
             'horario_cita.max' => 'El horario de cita no puede exceder los 50 caracteres.',
             'horario_cita.required' => 'El horario de cita es obligatorio para leads de postventa.',
             'tiempo_compra.required' => 'El tiempo de compra es obligatorio para leads de compra.',
-            '*.exists' => 'El valor seleccionado no es válido.',
+            'fecha_cierre.date' => 'La fecha de cierre debe ser una fecha válida.',
         ];
     }
 }

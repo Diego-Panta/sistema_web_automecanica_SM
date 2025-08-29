@@ -80,17 +80,33 @@
     </div>
     <div class="col-md-4">
         <div class="form-group">
-            <label for="marca_id">Marca de Vehículo</label>
+            <label for="marca_id">Marca del Vehículo</label>
             <select name="marca_id" id="marca_id" 
                     class="form-control @error('marca_id') is-invalid @enderror">
-                <option value="">Seleccione</option>
-                @foreach($marcas as $marca)
+                <option value="">Seleccione primero la marca</option>
+                @foreach($marcasVehiculo as $marca)
                     <option value="{{ $marca->id }}" {{ old('marca_id') == $marca->id ? 'selected' : '' }}>
                         {{ $marca->nombre_marca }}
                     </option>
                 @endforeach
             </select>
             @error('marca_id')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="form-group">
+            <label for="modelo_id">Modelo del Vehículo</label>
+            <select name="modelo_id" id="modelo_id" 
+                    class="form-control @error('modelo_id') is-invalid @enderror"
+                    disabled>
+                <option value="">Primero seleccione una marca</option>
+            </select>
+            @error('modelo_id')
                 <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>
                 </span>

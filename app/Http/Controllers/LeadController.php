@@ -11,6 +11,7 @@ use App\Models\ResultadoLead;
 use App\Models\MedioContacto;
 use App\Models\FormaRegistro;
 use App\Models\EstadoCliente;
+use App\Models\ModeloVehiculo;
 use App\Models\MarcaVehiculo;
 use App\Models\TipoDocumento;
 use App\Models\TipoServicio;
@@ -60,11 +61,19 @@ class LeadController extends Controller
             'estadosLead' => EstadoLead::all(),
             'mediosContacto' => MedioContacto::all(),
             'formasRegistro' => FormaRegistro::all(),
-            'marcas' => MarcaVehiculo::all(),
+            'marcasVehiculo' => MarcaVehiculo::all(), // Agregar marcas
+            'modelosVehiculo' => ModeloVehiculo::with('marca')->get(),
             'clientes' => Cliente::all(),
             'tiposDocumento' => TipoDocumento::all(),
             'tiposServicio' => TipoServicio::all()
         ]);
+    }
+
+    // Agregar este método para obtener modelos por marca
+    public function getModelosPorMarca($marcaId)
+    {
+        $modelos = ModeloVehiculo::where('marca_id', $marcaId)->get();
+        return response()->json($modelos);
     }
 
     /**
@@ -121,7 +130,7 @@ class LeadController extends Controller
                 'estado_actual_id' => $request->estado_actual_id,
                 'medio_contacto_id' => $request->medio_contacto_id,
                 'forma_registro_id' => $request->forma_registro_id,
-                'marca_id' => $request->marca_id,
+                'modelo_id' => $request->modelo_id,
                 'tipo_servicio_id' => $request->tipo_servicio_id,
                 'financiamiento' => $request->has('financiamiento') ? (bool) $request->financiamiento : false,
                 'tiempo_compra' => $request->tiempo_compra,
@@ -186,7 +195,7 @@ class LeadController extends Controller
             'canal',
             'medioContacto',
             'formaRegistro',
-            'marca',
+            'modeloVehiculo.marca',
             'tipoServicio',
             'creador',
             'asignaciones.usuarioAsignado',
@@ -212,7 +221,7 @@ class LeadController extends Controller
             'resultados' => ResultadoLead::all(),
             'mediosContacto' => MedioContacto::all(),
             'formasRegistro' => FormaRegistro::all(),
-            'marcas' => MarcaVehiculo::all(),
+            'modelosVehiculo' => ModeloVehiculo::with('marca')->get(),
             'tiposDocumento' => TipoDocumento::all(),
             'tiposServicio' => TipoServicio::all()
         ]);
@@ -249,7 +258,7 @@ class LeadController extends Controller
                 'resultado_id' => $request->resultado_id,
                 'medio_contacto_id' => $request->medio_contacto_id,
                 'forma_registro_id' => $request->forma_registro_id,
-                'marca_id' => $request->marca_id,
+                'modelo_id' => $request->modelo_id,
                 'tipo_servicio_id' => $request->tipo_servicio_id,
                 'financiamiento' => $request->has('financiamiento') ? (bool) $request->financiamiento : false,
                 'tiempo_compra' => $request->tiempo_compra,
@@ -278,7 +287,7 @@ class LeadController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource in storage.
      */
     public function destroy(Lead $lead)
     {
