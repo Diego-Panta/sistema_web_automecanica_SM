@@ -105,6 +105,25 @@
                                 </span>
                             @enderror
                         </div>
+
+                        <div class="form-group">
+                            <label for="sede_id">Sede*</label>
+                            <select name="sede_id" id="sede_id" 
+                                    class="form-control @error('sede_id') is-invalid @enderror" required>
+                                <option value="">Seleccione una sede</option>
+                                @foreach($sedes as $sede)
+                                <option value="{{ $sede->id }}" 
+                                    {{ old('sede_id', $user->laborale->sede_id ?? '') == $sede->id ? 'selected' : '' }}>
+                                    {{ $sede->nombre_sede }}
+                                </option>
+                                @endforeach
+                            </select>
+                            @error('sede_id')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
                         
                         <div class="form-group">
                             <label for="estado_user_id">Estado</label>
@@ -178,23 +197,7 @@
                                         <div class="horario-item card mb-3" data-index="{{ $index }}">
                                             <div class="card-body">
                                                 <div class="row">
-                                                    <div class="col-md-4">
-                                                        <div class="form-group">
-                                                            <label>Sede*</label>
-                                                            <select name="horarios[{{ $index }}][sede_id]" class="form-control @error('horarios.'.$index.'.sede_id') is-invalid @enderror" required>
-                                                                <option value="">Seleccione una sede</option>
-                                                                @foreach($sedes as $sede)
-                                                                    <option value="{{ $sede->id }}" 
-                                                                        {{ (isset($horario['sede_id']) ? $horario['sede_id'] : $horario->sede_id ?? '') == $sede->id ? 'selected' : '' }}>
-                                                                        {{ $sede->nombre_sede }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                            @error('horarios.'.$index.'.sede_id')
-                                                                <span class="invalid-feedback">{{ $message }}</span>
-                                                            @enderror
-                                                        </div>
-                                                    </div>
+                                                    
                                                     <div class="col-md-3">
                                                         <div class="form-group">
                                                             <label>Día de la Semana*</label>
@@ -355,17 +358,7 @@
                 <div class="horario-item card mb-3" data-index="${index}">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Sede*</label>
-                                    <select name="horarios[${index}][sede_id]" class="form-control" required>
-                                        <option value="">Seleccione una sede</option>
-                                        @foreach($sedes as $sede)
-                                            <option value="{{ $sede->id }}">{{ $sede->nombre_sede }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
+                            
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Día de la Semana*</label>

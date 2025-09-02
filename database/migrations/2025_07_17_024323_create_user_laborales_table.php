@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
             $table->foreignId('estado_user_id')->nullable()->constrained('estado_users')->nullOnDelete();
+            $table->foreignId('sede_id')->constrained('sedes')->cascadeOnDelete();
             $table->string('codigo_trabajador', 20)->unique();
             $table->date('fecha_contratacion_inicio');
             $table->date('fecha_contratacion_fin')->nullable();

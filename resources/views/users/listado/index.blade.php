@@ -58,8 +58,9 @@
                                 <td>{{ $user->celular }}</td>
                                 <td>{{ $user->laborale->codigo_trabajador ?? 'N/A' }}</td>
                                 <td>
-                                    @if($user->laborale && $user->laborale->estado)
-                                        <span class="badge badge-success">{{ $user->laborale->estado->nombre_estado }}</span>
+                                    @if ($user->laborale && $user->laborale->estado)
+                                        <span
+                                            class="badge badge-success">{{ $user->laborale->estado->nombre_estado }}</span>
                                     @else
                                         <span class="badge badge-secondary">Sin estado</span>
                                     @endif
@@ -73,10 +74,11 @@
                                 </td>
                                 <td width="180px">
                                     <div class="d-flex flex-wrap gap-1">
-                                        <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-warning mr-1" title="Editar">
+                                        <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-warning mr-1"
+                                            title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        @if($user->laborale && $user->laborale->estado && $user->laborale->estado->nombre_estado == 'Activo')
+                                        @if ($user->laborale && $user->laborale->estado && $user->laborale->estado->nombre_estado == 'Activo')
                                             <button type="button" class="btn btn-sm btn-danger mr-1" title="Desactivar"
                                                 onclick="setToggleData({{ $user->id }}, '{{ $user->name }}', 'desactivar')"
                                                 data-toggle="modal" data-target="#toggleModal">
@@ -216,7 +218,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Mostrar alertas SweetAlert2 si hay mensajes de sesión
-        @if(session('success'))
+        @if (session('success'))
             Swal.fire({
                 icon: 'success',
                 title: '¡Éxito!',
@@ -229,7 +231,7 @@
             });
         @endif
 
-        @if(session('error'))
+        @if (session('error'))
             Swal.fire({
                 icon: 'error',
                 title: '¡Error!',
@@ -250,18 +252,20 @@
             const message = document.getElementById('toggleMessage');
             const confirmBtn = document.getElementById('toggleConfirmBtn');
             const form = document.getElementById('toggleForm');
-            
+
             // Configurar el formulario
             form.action = '{{ route('users.destroy', '') }}/' + id;
-            
+
             if (action === 'desactivar') {
                 header.className = 'modal-header bg-warning text-dark';
-                message.innerHTML = `¿Estás seguro de <strong>desactivar</strong> al usuario "<strong>${nombre}</strong>"?<br><small class="text-muted">El usuario no podrá acceder al sistema pero conservará todos sus datos.</small>`;
+                message.innerHTML =
+                    `¿Estás seguro de <strong>desactivar</strong> al usuario "<strong>${nombre}</strong>"?<br><small class="text-muted">El usuario no podrá acceder al sistema pero conservará todos sus datos.</small>`;
                 confirmBtn.className = 'btn btn-warning';
                 confirmBtn.textContent = 'Desactivar Usuario';
             } else {
                 header.className = 'modal-header bg-success text-white';
-                message.innerHTML = `¿Estás seguro de <strong>reestablecer</strong> al usuario "<strong>${nombre}</strong>"?<br><small class="text-muted">El usuario podrá acceder nuevamente al sistema.</small>`;
+                message.innerHTML =
+                    `¿Estás seguro de <strong>reestablecer</strong> al usuario "<strong>${nombre}</strong>"?<br><small class="text-muted">El usuario podrá acceder nuevamente al sistema.</small>`;
                 confirmBtn.className = 'btn btn-success';
                 confirmBtn.textContent = 'Reestablecer Usuario';
             }
@@ -306,28 +310,29 @@
             document.getElementById('horarios-usuario-nombre').textContent = user.name || 'N/A';
             const tbody = document.getElementById('horarios-tbody');
             const noHorarios = document.getElementById('no-horarios');
-            
+
             // Limpiar contenido anterior
             tbody.innerHTML = '';
-            
+
             const horarios = user.laborale && user.laborale.horarios ? user.laborale.horarios : [];
-            
+            const sede = user.laborale && user.laborale.sede ? user.laborale.sede.nombre_sede : 'N/A';
+
             if (horarios.length > 0) {
                 noHorarios.style.display = 'none';
-                
+
                 horarios.forEach(horario => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${diasSemana[horario.dia_semana] || horario.dia_semana}</td>
-                        <td>${horario.sede ? horario.sede.nombre_sede : 'N/A'}</td>
-                        <td>${horario.turno ? horario.turno.nombre_turno : 'N/A'}</td>
-                    `;
+                <td>${diasSemana[horario.dia_semana] || horario.dia_semana}</td>
+                <td>${sede}</td> <!-- MOSTRAR SEDE DESDE EMPLEADO -->
+                <td>${horario.turno ? horario.turno.nombre_turno : 'N/A'}</td>
+            `;
                     tbody.appendChild(row);
                 });
             } else {
                 noHorarios.style.display = 'block';
             }
-            
+
             $('#horariosModal').modal('show');
         }
     </script>

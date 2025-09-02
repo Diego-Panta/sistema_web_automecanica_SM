@@ -22,9 +22,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['laborale.horarios.sede', 'laborale.horarios.turno', 'laborale.estado', 'roles'])
-            ->latest()
-            ->get();
+        $users = User::with([
+            'laborale.horarios.turno', 
+            'laborale.estado', 
+            'laborale.sede', // CARGAR SEDE DESDE USER_LABORALE
+            'roles'
+        ])->latest()->get();
 
         return view('users.listado.index', compact('users'));
     }
@@ -39,7 +42,6 @@ class UserController extends Controller
         $estados = EstadoUser::orderBy('nombre_estado')->get();
         $roles = Role::orderBy('name')->get();
 
-        // Días de la semana para el formulario
         $diasSemana = [
             'lunes' => 'Lunes',
             'martes' => 'Martes',
@@ -61,6 +63,11 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
 
+            // Validar que solo se envíe una sede
+            $request->validate([
+                'sede_id' => 'required|exists:sedes,id',
+            ]);
+
             // Crear usuario
             $user = User::create([
                 'name' => $request->name,
@@ -74,9 +81,10 @@ class UserController extends Controller
                 'direccion' => $request->direccion,
             ]);
 
-            // Crear datos laborales
+            // Crear datos laborales CON SEDE
             $userLaborale = $user->laborale()->create([
                 'estado_user_id' => $request->estado_user_id,
+                'sede_id' => $request->sede_id, // AGREGADO
                 'codigo_trabajador' => $request->codigo_trabajador,
                 'fecha_contratacion_inicio' => $request->fecha_contratacion_inicio,
                 'fecha_contratacion_fin' => $request->fecha_contratacion_fin,
@@ -85,10 +93,9 @@ class UserController extends Controller
             // Crear horarios si se proporcionaron
             if ($request->has('horarios') && is_array($request->horarios)) {
                 foreach ($request->horarios as $horario) {
-                    if (isset($horario['sede_id']) && isset($horario['dia_semana']) && isset($horario['turno_id'])) {
+                    if (isset($horario['dia_semana']) && isset($horario['turno_id'])) {
                         UserHorario::create([
                             'user_laborale_id' => $userLaborale->id,
-                            'sede_id' => $horario['sede_id'],
                             'dia_semana' => $horario['dia_semana'],
                             'turno_id' => $horario['turno_id'],
                         ]);
@@ -127,14 +134,13 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $user->load('laborale.horarios', 'roles');
+        $user->load('laborale.horarios', 'roles', 'laborale.sede'); // CARGAR SEDE
 
         $turnos = Turno::orderBy('nombre_turno')->get();
         $sedes = Sede::orderBy('nombre_sede')->get();
         $estados = EstadoUser::orderBy('nombre_estado')->get();
         $roles = Role::orderBy('name')->get();
 
-        // Días de la semana para el formulario
         $diasSemana = [
             'lunes' => 'Lunes',
             'martes' => 'Martes',
@@ -163,6 +169,11 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
 
+            // Validar que solo se envíe una sede
+            $request->validate([
+                'sede_id' => 'required|exists:sedes,id',
+            ]);
+
             // Actualizar datos personales
             $userData = [
                 'name' => $request->name,
@@ -175,34 +186,32 @@ class UserController extends Controller
                 'direccion' => $request->direccion,
             ];
 
-            // Actualizar contraseña solo si se proporcionó
             if ($request->filled('password')) {
                 $userData['password'] = Hash::make($request->password);
             }
 
             $user->update($userData);
 
-            // Actualizar datos laborales
+            // Actualizar datos laborales CON SEDE
             $userLaborale = $user->laborale()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'estado_user_id' => $request->estado_user_id,
+                    'sede_id' => $request->sede_id, // AGREGADO
                     'codigo_trabajador' => $request->codigo_trabajador,
                     'fecha_contratacion_inicio' => $request->fecha_contratacion_inicio,
                     'fecha_contratacion_fin' => $request->fecha_contratacion_fin,
                 ]
             );
 
-            // Eliminar horarios existentes
+            // Eliminar horarios existentes y crear nuevos
             $userLaborale->horarios()->delete();
 
-            // Crear nuevos horarios
             if ($request->has('horarios') && is_array($request->horarios)) {
                 foreach ($request->horarios as $horario) {
-                    if (isset($horario['sede_id']) && isset($horario['dia_semana']) && isset($horario['turno_id'])) {
+                    if (isset($horario['dia_semana']) && isset($horario['turno_id'])) {
                         UserHorario::create([
                             'user_laborale_id' => $userLaborale->id,
-                            'sede_id' => $horario['sede_id'],
                             'dia_semana' => $horario['dia_semana'],
                             'turno_id' => $horario['turno_id'],
                         ]);
@@ -210,7 +219,6 @@ class UserController extends Controller
                 }
             }
 
-            // Sincronizar roles
             $user->roles()->sync($request->roles ?? []);
 
             DB::commit();

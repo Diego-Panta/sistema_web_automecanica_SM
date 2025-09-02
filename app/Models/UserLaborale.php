@@ -11,6 +11,7 @@ class UserLaborale extends Model
     protected $fillable = [
         'user_id',
         'estado_user_id',
+        'sede_id', // AGREGADO
         'codigo_trabajador',
         'fecha_contratacion_inicio',
         'fecha_contratacion_fin',
@@ -19,6 +20,11 @@ class UserLaborale extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function sede()
+    {
+        return $this->belongsTo(Sede::class, 'sede_id'); // NUEVA RELACIÓN
     }
 
     public function horarios()

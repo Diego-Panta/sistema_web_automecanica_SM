@@ -21,14 +21,8 @@ class RolePermissionSeeder extends Seeder
         Permission::create(['name' => 'gestionar_leads']);
         Permission::create(['name' => 'asignar_leads']);
         Permission::create(['name' => 'ver_reportes_leads']);
-        
-        // Permisos para Clientes
         Permission::create(['name' => 'gestionar_clientes']);
-        
-        // Permisos para Vehículos
         Permission::create(['name' => 'gestionar_vehiculos']);
-        
-        // Permisos para Usuarios
         Permission::create(['name' => 'gestionar_usuarios']);
 
         // Crear roles y asignar permisos

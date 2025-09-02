@@ -375,9 +375,19 @@ return [
                 ],
                 [
                     'text' => 'Asignación de Leads',
-                    'url' => 'leads/assign',
                     'icon' => 'fas fa-fw fa-users',
-                    //'can' => ['jefe-ventas', 'marketing'],
+                    'submenu' => [
+                        [
+                            'text' => 'Gestionar Asignaciones',
+                            'url' => 'leads/assign',
+                            'icon' => 'fas fa-fw fa-tasks',
+                        ],
+                        [
+                            'text' => 'Historial',
+                            'url' => 'leads/assign/history',
+                            'icon' => 'fas fa-fw fa-cogs',
+                        ],
+                    ],
                 ],
                 [
                     'text' => 'Configuración',

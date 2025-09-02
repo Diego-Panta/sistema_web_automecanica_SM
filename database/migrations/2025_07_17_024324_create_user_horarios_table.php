@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('user_horarios', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_laborale_id')->constrained('user_laborales')->cascadeOnDelete();
-            $table->foreignId('sede_id')->constrained('sedes')->cascadeOnDelete();
             $table->string('dia_semana', 15); // Ejemplo: Lunes, Martes, ...
             $table->foreignId('turno_id')->constrained('turnos')->cascadeOnDelete();
             $table->timestamps();

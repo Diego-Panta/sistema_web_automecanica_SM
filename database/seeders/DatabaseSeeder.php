@@ -37,11 +37,11 @@ class DatabaseSeeder extends Seeder
             TurnosSeeder::class,
             AccionesSeeder::class,
             TipoServiciosSeeder::class,
+            SedesSeeder::class,
+            ModeloVehiculosSeeder::class,
             RolePermissionSeeder::class,
             AdminUserSeeder::class,
             UsersSeeder::class,
-            SedesSeeder::class,
-            ModeloVehiculosSeeder::class,
         ]);
     }
 }

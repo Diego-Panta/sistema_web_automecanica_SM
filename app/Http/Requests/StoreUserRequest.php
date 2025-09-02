@@ -7,19 +7,11 @@ use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -34,15 +26,15 @@ class StoreUserRequest extends FormRequest
             'fecha_nacimiento' => 'nullable|date',
             'direccion' => 'nullable|string|max:255',
 
-            // Datos laborales
+            // Datos laborales (AGREGAR SEDE_ID)
+            'sede_id' => 'required|exists:sedes,id', // NUEVO
             'estado_user_id' => 'nullable|exists:estado_users,id',
             'codigo_trabajador' => 'required|string|max:20|unique:user_laborales',
             'fecha_contratacion_inicio' => 'required|date',
             'fecha_contratacion_fin' => 'nullable|date|after_or_equal:fecha_contratacion_inicio',
 
-            // Horarios (array de asignaciones)
+            // Horarios (ELIMINAR SEDE_ID DE HORARIOS)
             'horarios' => 'nullable|array',
-            'horarios.*.sede_id' => 'required|exists:sedes,id',
             'horarios.*.dia_semana' => 'required|string|in:lunes,martes,miercoles,jueves,viernes,sabado,domingo',
             'horarios.*.turno_id' => 'required|exists:turnos,id',
 
@@ -72,15 +64,15 @@ class StoreUserRequest extends FormRequest
             'celular_alterno.regex' => 'El celular alterno debe comenzar con 9 y tener 8 dígitos más.',
             'email_personal.email' => 'El correo personal debe ser una dirección válida.',
 
-            // Mensajes para datos laborales
+            // Mensajes para datos laborales (AGREGAR MENSAJE PARA SEDE)
+            'sede_id.required' => 'La sede es obligatoria.', // NUEVO
+            'sede_id.exists' => 'La sede seleccionada no es válida.', // NUEVO
             'codigo_trabajador.required' => 'El código de trabajador es obligatorio.',
             'codigo_trabajador.unique' => 'Este código de trabajador ya está registrado.',
             'fecha_contratacion_inicio.required' => 'La fecha de inicio de contrato es obligatoria.',
             'fecha_contratacion_fin.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
 
-            // Mensajes para horarios
-            'horarios.*.sede_id.required' => 'La sede es obligatoria en cada asignación.',
-            'horarios.*.sede_id.exists' => 'La sede seleccionada no es válida.',
+            // Mensajes para horarios (ELIMINAR MENSAJES DE SEDE)
             'horarios.*.dia_semana.required' => 'El día de la semana es obligatorio en cada asignación.',
             'horarios.*.dia_semana.in' => 'El día de la semana seleccionado no es válido.',
             'horarios.*.turno_id.required' => 'El turno es obligatorio en cada asignación.',
@@ -105,6 +97,7 @@ class StoreUserRequest extends FormRequest
             'email_personal' => 'correo personal',
             'fecha_nacimiento' => 'fecha de nacimiento',
             'direccion' => 'dirección',
+            'sede_id' => 'sede', // NUEVO
             'codigo_trabajador' => 'código de trabajador',
             'fecha_contratacion_inicio' => 'fecha de inicio de contrato',
             'fecha_contratacion_fin' => 'fecha de fin de contrato'

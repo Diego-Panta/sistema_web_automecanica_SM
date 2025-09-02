@@ -23,6 +23,7 @@ use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CiudadeController;
+use App\Http\Controllers\AsignacionLeadController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,6 +37,14 @@ Route::get('leads/status', function () {
 
 // Rutas para la configuración de leads
 Route::prefix('leads')->group(function () {
+
+    // Asignaciones - DEBEN IR ANTES de las rutas con parámetros dinámicos
+    Route::get('/assign', [AsignacionLeadController::class, 'index'])->name('leads.assign');
+    Route::get('/assign/create', [AsignacionLeadController::class, 'create'])->name('leads.assign.create');
+    Route::post('/assign', [AsignacionLeadController::class, 'store'])->name('leads.assign.store');
+    Route::get('/assign/{lead}/edit', [AsignacionLeadController::class, 'edit'])->name('leads.assign.edit');
+    Route::put('/assign/{lead}', [AsignacionLeadController::class, 'update'])->name('leads.assign.update');
+    Route::get('/assign/history', [AsignacionLeadController::class, 'history'])->name('leads.assign.history');
 
     // Tipos de Lead (actualizadas con CRUD completo)
     Route::get('/types', [TipoLeadController::class, 'index'])->name('leads.types.index');
@@ -85,26 +94,28 @@ Route::prefix('leads')->group(function () {
     Route::put('/status/{estado}', [EstadoLeadController::class, 'update'])->name('leads.status.update');
     Route::delete('/status/{estado}', [EstadoLeadController::class, 'destroy'])->name('leads.status.destroy');
     
+    // Rutas adicionales - DEBEN IR ANTES de las rutas con parámetros dinámicos
+    Route::get('/import', [LeadController::class, 'import'])->name('leads.import');
+    Route::post('/import', [LeadController::class, 'processImport'])->name('leads.process.import');
+    
+    // Manejar marca
+    Route::get('/modelos-por-marca/{marcaId}', [LeadController::class, 'getModelosPorMarca'])->name('leads.modelos.por.marca');
+    
+    // Rutas principales de leads
     Route::get('/', [LeadController::class, 'index'])->name('leads.index');
     Route::get('/create', [LeadController::class, 'create'])->name('leads.create');
     Route::post('/', [LeadController::class, 'store'])->name('leads.store');
     Route::get('/create/manual', [LeadController::class, 'createManual'])->name('leads.create.manual');
     Route::post('/create/manual', [LeadController::class, 'storeManual'])->name('leads.store.manual');
+    
+    // Rutas con parámetros dinámicos - DEBEN IR AL FINAL
     Route::get('/{lead}', [LeadController::class, 'show'])->name('leads.show');
     Route::get('/{lead}/edit', [LeadController::class, 'edit'])->name('leads.edit');
     Route::put('/{lead}', [LeadController::class, 'update'])->name('leads.update');
     Route::delete('/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
     
-    //Manejar marca
-    Route::get('/modelos-por-marca/{marcaId}', [LeadController::class, 'getModelosPorMarca'])->name('leads.modelos.por.marca');
-
-    // Rutas adicionales
-    Route::get('/import', [LeadController::class, 'import'])->name('leads.import');
-    Route::post('/import', [LeadController::class, 'processImport'])->name('leads.process.import');
-    Route::get('/assign', [LeadController::class, 'assign'])->name('leads.assign');
-    Route::post('/assign', [LeadController::class, 'processAssign'])->name('leads.process.assign');
-    
 });
+
 
 Route::prefix('clientes')->name('clientes.')->group(function () {
     Route::get('/', [ClienteController::class, 'index'])->name('index');
