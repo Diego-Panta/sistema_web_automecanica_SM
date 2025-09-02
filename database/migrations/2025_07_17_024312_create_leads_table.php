@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreignId('modelo_id')->nullable()->constrained('modelo_vehiculos')->nullOnDelete();
             $table->foreignId('tipo_servicio_id')->nullable()->constrained('tipo_servicios')->nullOnDelete(); // Nuevo
             $table->boolean('financiamiento')->default(false);
+            $table->foreignId('sede_id')->nullable()->constrained('sedes')->nullOnDelete();
             $table->string('tiempo_compra', 100)->nullable();
             $table->string('numero_placa', 10)->nullable(); // Nuevo
             $table->integer('kilometraje')->nullable(); // Nuevo

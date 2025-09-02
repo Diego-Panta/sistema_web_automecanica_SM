@@ -30,6 +30,7 @@
                             <th>Cliente</th>
                             <th>Tipo</th>
                             <th>Estado</th>
+                            <th>Sede</th>
                             <th>Canal</th>
                             <th>Fecha Creación</th>
                             <th>Acciones</th>
@@ -56,6 +57,9 @@
                                     </span>
                                 </td>
                                 <td>{{ $lead->canal->nombre_canal }}</td>
+                                <td>
+                                    {{ $lead->sede ? $lead->sede->nombre_sede : 'N/A' }}
+                                </td>
                                 <td>{{ $lead->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     <div class="btn-group">

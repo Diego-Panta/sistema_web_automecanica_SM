@@ -12,7 +12,7 @@ class Lead extends Model
     protected $fillable = [
         'cliente_id', 'canal_id', 'tipo_id', 'estado_actual_id',
         'resultado_id', 'usuario_creador_id', 'medio_contacto_id',
-        'forma_registro_id', 'modelo_id', 'tipo_servicio_id',
+        'forma_registro_id', 'modelo_id', 'tipo_servicio_id', 'sede_id',
         'financiamiento', 'tiempo_compra', 'numero_placa', 'kilometraje',
         'fecha_cita', 'horario_cita', 'observacion', 'consulta', 'fecha_cierre'
     ];
@@ -35,6 +35,7 @@ class Lead extends Model
 
     public function tipoServicio() { return $this->belongsTo(TipoServicio::class, 'tipo_servicio_id'); }
     public function modeloVehiculo() { return $this->belongsTo(ModeloVehiculo::class, 'modelo_id'); }
+    public function sede() { return $this->belongsTo(Sede::class, 'sede_id'); }
 
     // RELACIONES ACTUALIZADAS:
     

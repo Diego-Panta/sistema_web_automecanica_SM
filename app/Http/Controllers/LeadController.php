@@ -15,6 +15,7 @@ use App\Models\ModeloVehiculo;
 use App\Models\MarcaVehiculo;
 use App\Models\TipoDocumento;
 use App\Models\TipoServicio;
+use App\Models\Sede;
 use App\Http\Requests\StoreLeadRequest;
 use App\Http\Requests\UpdateLeadRequest;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,7 @@ class LeadController extends Controller
             'estadosLead' => EstadoLead::all(),
             'mediosContacto' => MedioContacto::all(),
             'formasRegistro' => FormaRegistro::all(),
-            'marcasVehiculo' => MarcaVehiculo::all(), // Agregar marcas
+            'marcasVehiculo' => MarcaVehiculo::all(),
             'modelosVehiculo' => ModeloVehiculo::with('marca')->get(),
             'clientes' => Cliente::all(),
             'tiposDocumento' => TipoDocumento::all(),
@@ -122,6 +123,9 @@ class LeadController extends Controller
                 $consulta = $request->consulta_repuesto;
             }
 
+            // Obtener la sede del usuario autenticado
+            $sedeId = Auth::user()->laborale->sede_id;
+
             // Crear el lead asociado al cliente
             $lead = Lead::create([
                 'cliente_id' => $cliente->id,
@@ -132,6 +136,7 @@ class LeadController extends Controller
                 'forma_registro_id' => $request->forma_registro_id,
                 'modelo_id' => $request->modelo_id,
                 'tipo_servicio_id' => $request->tipo_servicio_id,
+                'sede_id' => $sedeId, // Asignar sede del usuario
                 'financiamiento' => $request->has('financiamiento') ? (bool) $request->financiamiento : false,
                 'tiempo_compra' => $request->tiempo_compra,
                 'numero_placa' => $numeroPlaca,
@@ -139,7 +144,7 @@ class LeadController extends Controller
                 'fecha_cita' => $request->fecha_cita,
                 'horario_cita' => $request->horario_cita,
                 'observacion' => $request->observacion,
-                'consulta' => $consulta, // Nuevo campo
+                'consulta' => $consulta,
                 'usuario_creador_id' => Auth::id(),
             ]);
 
@@ -198,6 +203,7 @@ class LeadController extends Controller
             'modeloVehiculo.marca',
             'tipoServicio',
             'creador',
+            'sede',
             'asignaciones.usuarioAsignado',
             'historialEstados.estado',
             'accionesRealizadas.accion',

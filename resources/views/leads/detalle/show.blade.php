@@ -45,9 +45,11 @@
                             <p><strong>Resultado:</strong>
                                 {{ $lead->resultado->nombre_resultado ?? 'N/A' }}
                             </p>
+                            
                         </div>
                         <div class="col-md-6">
                             <p><strong>Canal:</strong> {{ $lead->canal->nombre_canal }}</p>
+                            <p><strong>Sede:</strong> {{ $lead->sede->nombre_sede }}</p>
                             <p><strong>Forma Registro:</strong> {{ $lead->formaRegistro->nombre_forma }}</p>
                             <p><strong>Marca:</strong> {{ $lead->modeloVehiculo->marca->nombre_marca ?? 'N/A' }}</p>
                             <p><strong>Modelo:</strong> {{ $lead->modeloVehiculo->nombre_modelo ?? 'N/A' }}</p>
