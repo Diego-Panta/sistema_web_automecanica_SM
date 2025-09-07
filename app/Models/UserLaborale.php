@@ -11,7 +11,7 @@ class UserLaborale extends Model
     protected $fillable = [
         'user_id',
         'estado_user_id',
-        'sede_id', // AGREGADO
+        'sede_id',
         'codigo_trabajador',
         'fecha_contratacion_inicio',
         'fecha_contratacion_fin',
@@ -24,7 +24,7 @@ class UserLaborale extends Model
 
     public function sede()
     {
-        return $this->belongsTo(Sede::class, 'sede_id'); // NUEVA RELACIÓN
+        return $this->belongsTo(Sede::class, 'sede_id');
     }
 
     public function horarios()
@@ -38,10 +38,10 @@ class UserLaborale extends Model
     }
 
     // Método helper para obtener todas las sedes asignadas
-    public function sedes()
+    /*public function sedes()
     {
         return $this->belongsToMany(Sede::class, 'user_horarios', 'user_laborale_id', 'sede_id')->distinct();
-    }
+    }*/
 
     // Método helper para obtener todos los turnos asignados
     public function turnos()

@@ -14,7 +14,8 @@ class AsignacionLead extends Model
         'usuario_asignador_id',
         'usuario_asignado_id',
         'fecha_asignacion',
-        'observacion'
+        'observacion',
+        'activo'
     ];
 
     protected $casts = [

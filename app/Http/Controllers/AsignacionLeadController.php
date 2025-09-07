@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Lead;
 use App\Models\User;
 use App\Models\TipoLead;
+use App\Models\AsignacionLead;
+use App\Models\EstadoLead;
 use Illuminate\Http\Request;
 use App\Services\AsignacionLeadService;
 use Illuminate\Support\Facades\Auth;
@@ -18,37 +20,89 @@ class AsignacionLeadController extends Controller
 
     public function __construct(AsignacionLeadService $assignmentService)
     {
-        $this->middleware('can:gestionar_leads');
+        $this->middleware('can:asignar_leads');
         $this->assignmentService = $assignmentService;
     }
 
     public function index()
     {
-        $leads = Lead::whereDoesntHave('asignaciones')
-            ->orWhereHas('asignaciones', function ($query) {
-                $query->where('fecha_asignacion', '<', now()->subDays(7));
-            })
-            ->with(['cliente', 'tipo', 'estadoActual'])
-            ->paginate(15);
+        try {
+            $user = Auth::user();
 
-        return view('leads.asignaciones.index', compact('leads'));
+            // Verificar que el usuario tenga datos laborales y sea de marketing
+            if (!$user->laborale || !$this->userHasMarketingRole($user)) {
+                $leads = collect();
+                $errorMessage = "No tienes permisos para asignar leads o no tienes datos laborales configurados.";
+                return view('leads.asignaciones.index', compact('leads', 'errorMessage'));
+            }
+
+            // CORRECCIÓN: Solo mostrar leads que NO tengan asignaciones activas
+            $leads = Lead::where('sede_id', $user->laborale->sede_id)
+                ->whereDoesntHave('asignaciones', function ($query) {
+                    $query->where('activo', true);
+                })
+                ->with(['cliente', 'tipo', 'estadoActual', 'sede'])
+                ->paginate(15);
+
+            return view('leads.asignaciones.index', compact('leads'));
+        } catch (Throwable $e) {
+            Log::error("Error en index de asignación de leads", ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return redirect()->route('leads.assign')
+                ->with('error', 'Error al cargar la lista de leads: ' . $e->getMessage());
+        }
     }
 
     public function create(Request $request)
     {
-        $lead = null;
-        $availableAdvisors = collect();
+        try {
+            $user = Auth::user();
+            $lead = null;
+            $availableAdvisors = collect();
+            $errorMessage = null;
 
-        if ($request->has('lead_id')) {
-            $lead = Lead::with(['cliente', 'tipo'])->findOrFail($request->lead_id);
-            $availableAdvisors = $this->assignmentService->getAvailableAdvisors($lead, Auth::user());
+            // Verificar que el usuario tenga datos laborales y sea de marketing
+            if (!$user->laborale || !$this->userHasMarketingRole($user)) {
+                $errorMessage = "No tienes permisos para asignar leads o no tienes datos laborales configurados.";
+                $leads = collect();
+                return view('leads.asignaciones.create', compact('leads', 'lead', 'availableAdvisors', 'errorMessage'));
+            }
+
+            if ($request->has('lead_id')) {
+                $lead = Lead::with(['cliente', 'tipo', 'sede'])->findOrFail($request->lead_id);
+
+                // Verificar que el lead sea de la misma sede que el usuario
+                if ($lead->sede_id !== $user->laborale->sede_id) {
+                    $errorMessage = "No tienes permisos para asignar leads de esta sede.";
+                } else {
+                    // CORRECCIÓN: Verificar que el lead no tenga asignaciones activas
+                    $tieneAsignacionActiva = $lead->asignaciones()->where('activo', true)->exists();
+
+                    if ($tieneAsignacionActiva) {
+                        $errorMessage = "Este lead ya tiene una asignación activa.";
+                    } else {
+                        $availableAdvisors = $this->assignmentService->getAvailableAdvisors($lead, $user);
+
+                        if ($availableAdvisors->isEmpty()) {
+                            $errorMessage = 'No hay asesores disponibles para este tipo de lead en la sede ' . $lead->sede->nombre_sede;
+                        }
+                    }
+                }
+            }
+
+            // CORRECCIÓN: Solo mostrar leads que NO tengan asignaciones activas
+            $leads = Lead::where('sede_id', $user->laborale->sede_id)
+                ->whereDoesntHave('asignaciones', function ($query) {
+                    $query->where('activo', true);
+                })
+                ->with(['cliente', 'tipo', 'sede'])
+                ->get();
+
+            return view('leads.asignaciones.create', compact('leads', 'lead', 'availableAdvisors', 'errorMessage'));
+        } catch (Throwable $e) {
+            Log::error("Error en create de asignación de leads", ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return redirect()->route('leads.assign')
+                ->with('error', 'Error al cargar el formulario de asignación: ' . $e->getMessage());
         }
-
-        $leads = Lead::whereDoesntHave('asignaciones')
-            ->with(['cliente', 'tipo'])
-            ->get();
-
-        return view('leads.asignaciones.create', compact('leads', 'lead', 'availableAdvisors'));
     }
 
     public function store(Request $request)
@@ -59,30 +113,76 @@ class AsignacionLeadController extends Controller
             'observacion' => 'nullable|string|max:500'
         ]);
 
-        $lead = Lead::findOrFail($request->lead_id);
-        $assignedUser = User::findOrFail($request->usuario_asignado_id);
-
         try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $lead = Lead::with('sede')->findOrFail($request->lead_id);
+            $assignedUser = User::findOrFail($request->usuario_asignado_id);
+
+            // Verificar permisos
+            if (!$user->laborale || !$this->userHasMarketingRole($user)) {
+                throw new \Exception('No tienes permisos para asignar leads.');
+            }
+
+            // Verificar que el lead sea de la misma sede
+            if ($lead->sede_id !== $user->laborale->sede_id) {
+                throw new \Exception('No tienes permisos para asignar leads de esta sede.');
+            }
+
+            // CORRECCIÓN: Verificar que el lead no tenga asignaciones activas
+            $tieneAsignacionActiva = $lead->asignaciones()->where('activo', true)->exists();
+            if ($tieneAsignacionActiva) {
+                throw new \Exception('Este lead ya tiene una asignación activa.');
+            }
+
             $assignment = $this->assignmentService->assignLead(
                 $lead,
                 $assignedUser,
-                Auth::user(),
+                $user,
                 $request->observacion
             );
 
+            DB::commit();
+
             return redirect()->route('leads.assign')
-                ->with('success', 'Lead asignado correctamente.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error al asignar el lead: ' . $e->getMessage());
+                ->with('success', 'Lead asignado correctamente al asesor.');
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error("Error al asignar lead", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'lead_id' => $request->lead_id,
+                'usuario_asignado_id' => $request->usuario_asignado_id
+            ]);
+            return back()->with('error', 'Error al asignar el lead: ' . $e->getMessage())->withInput();
         }
     }
 
     public function edit(Lead $lead)
     {
-        $availableAdvisors = $this->assignmentService->getAvailableAdvisors($lead, Auth::user());
-        $currentAssignment = $lead->asignaciones()->latest()->first();
+        try {
+            $user = Auth::user();
 
-        return view('leads.asignaciones.edit', compact('lead', 'availableAdvisors', 'currentAssignment'));
+            // Verificar permisos
+            if (!$user->laborale || !$this->userHasMarketingRole($user) || $lead->sede_id !== $user->laborale->sede_id) {
+                return redirect()->route('leads.assign')
+                    ->with('error', 'No tienes permisos para editar esta asignación.');
+            }
+
+            $availableAdvisors = $this->assignmentService->getAvailableAdvisors($lead, $user);
+            $currentAssignment = $lead->asignaciones()->where('activo', true)->first();
+
+            return view('leads.asignaciones.edit', compact('lead', 'availableAdvisors', 'currentAssignment'));
+        } catch (Throwable $e) {
+            Log::error("Error en edit de asignación de leads", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'lead_id' => $lead->id
+            ]);
+            return redirect()->route('leads.assign')
+                ->with('error', 'Error al cargar el formulario de edición: ' . $e->getMessage());
+        }
     }
 
     public function update(Request $request, Lead $lead)
@@ -92,37 +192,141 @@ class AsignacionLeadController extends Controller
             'observacion' => 'nullable|string|max:500'
         ]);
 
-        $assignedUser = User::findOrFail($request->usuario_asignado_id);
-
         try {
-            // Primero, marcar la asignación anterior como inactiva si existe
-            $lead->asignaciones()->update(['activo' => false]);
+            DB::beginTransaction();
 
-            // Crear nueva asignación
+            $user = Auth::user();
+            $assignedUser = User::findOrFail($request->usuario_asignado_id);
+
+            // Verificar permisos
+            if (!$user->laborale || !$this->userHasMarketingRole($user) || $lead->sede_id !== $user->laborale->sede_id) {
+                throw new \Exception('No tienes permisos para editar esta asignación.');
+            }
+
             $assignment = $this->assignmentService->assignLead(
                 $lead,
                 $assignedUser,
-                Auth::user(),
+                $user,
                 $request->observacion
             );
 
+            DB::commit();
+
             return redirect()->route('leads.assign.history')
                 ->with('success', 'Asignación actualizada correctamente.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error al actualizar la asignación: ' . $e->getMessage());
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error("Error al actualizar asignación de lead", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'lead_id' => $lead->id,
+                'usuario_asignado_id' => $request->usuario_asignado_id
+            ]);
+            return back()->with('error', 'Error al actualizar la asignación: ' . $e->getMessage())->withInput();
         }
     }
 
     public function history(Request $request)
     {
-        $filters = $request->only(['fecha_inicio', 'fecha_fin', 'tipo_lead_id', 'usuario_asignado_id']);
-        $assignments = $this->assignmentService->getAssignmentHistory($filters);
+        try {
+            $user = Auth::user();
 
-        $tiposLead = TipoLead::all();
-        $asesores = User::whereHas('roles', function ($query) {
-            $query->whereIn('name', ['asesor ventas', 'jefe postventa', 'jefe repuestos']);
-        })->get();
+            // Verificar que el usuario tenga datos laborales
+            if (!$user->laborale) {
+                $assignments = collect();
+                $errorMessage = "No tienes datos laborales configurados.";
+                $tiposLead = TipoLead::all();
+                $asesores = collect();
+                return view('leads.asignaciones.history', compact('assignments', 'tiposLead', 'asesores', 'filters', 'errorMessage'));
+            }
 
-        return view('leads.asignaciones.history', compact('assignments', 'tiposLead', 'asesores', 'filters'));
+            $filters = $request->only(['fecha_inicio', 'fecha_fin', 'tipo_lead_id', 'usuario_asignado_id']);
+
+            // Solo mostrar historial de la misma sede
+            $assignments = AsignacionLead::whereHas('lead', function ($query) use ($user) {
+                $query->where('sede_id', $user->laborale->sede_id);
+            })
+                ->with(['lead', 'asignador', 'asignado', 'lead.tipo', 'lead.sede'])
+                ->orderBy('fecha_asignacion', 'desc')
+                ->paginate(20);
+
+            $tiposLead = TipoLead::all();
+            $asesores = User::whereHas('roles', function ($query) {
+                $query->whereIn('name', ['asesor ventas', 'jefe postventa', 'jefe repuestos']);
+            })->get();
+
+            return view('leads.asignaciones.history', compact('assignments', 'tiposLead', 'asesores', 'filters'));
+        } catch (Throwable $e) {
+            Log::error("Error en history de asignación de leads", ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return redirect()->route('leads.assign')
+                ->with('error', 'Error al cargar el historial de asignaciones: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy(AsignacionLead $assignment)
+    {
+        try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+
+            // Verificar permisos
+            if (!$user->laborale || !$this->userHasMarketingRole($user)) {
+                throw new \Exception('No tienes permisos para cancelar asignaciones.');
+            }
+
+            // Verificar que la asignación sea de la misma sede que el usuario
+            if ($assignment->lead->sede_id !== $user->laborale->sede_id) {
+                throw new \Exception('No tienes permisos para cancelar asignaciones de esta sede.');
+            }
+
+            // Verificar que la asignación esté activa
+            if (!$assignment->activo) {
+                throw new \Exception('Esta asignación ya está cancelada.');
+            }
+
+            // Cambiar el estado de la asignación a inactiva
+            $assignment->activo = false;
+            $assignment->save();
+
+            // CORRECCIÓN: También actualizar el estado del lead a "Disponible" o el estado inicial
+            $estadoDisponible = EstadoLead::where('nombre_estado', 'Nuevo')->first(); // o el estado inicial que uses
+            if ($estadoDisponible) {
+                $assignment->lead->update([
+                    'estado_actual_id' => $estadoDisponible->id
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('leads.assign.history')
+                ->with('success', 'Asignación cancelada correctamente. El lead ahora está disponible para nueva asignación.');
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error("Error al cancelar asignación de lead", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'assignment_id' => $assignment->id,
+                'user_id' => Auth::id()
+            ]);
+            return redirect()->route('leads.assign.history')
+                ->with('error', 'Error al cancelar la asignación: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Verificar si el usuario tiene rol de marketing
+     * Método alternativo para evitar advertencias del IDE
+     */
+    private function userHasMarketingRole(User $user): bool
+    {
+        // Método 1: Usando hasRole (puede generar advertencia pero funciona)
+        // return $user->hasRole('marketing');
+
+        // Método 2: Verificación manual
+        return $user->roles()->where('name', 'marketing')->exists();
+
+        // Método 3: Usando getRoleNames
+        // return $user->getRoleNames()->contains('marketing');
     }
 }

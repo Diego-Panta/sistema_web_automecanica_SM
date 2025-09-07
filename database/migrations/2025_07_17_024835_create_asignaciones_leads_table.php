@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('asignaciones_leads', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lead_id')->constrained('leads')->cascadeOnDelete();
-            $table->foreignId('usuario_asignador_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('usuario_asignado_id')->constrained('users')->cascadeOnDelete();
-            $table->timestamp('fecha_asignacion')->useCurrent();
+            $table->foreignId('lead_id')->constrained()->onDelete('cascade');
+            $table->foreignId('usuario_asignador_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('usuario_asignado_id')->constrained('users')->onDelete('cascade');
+            $table->timestamp('fecha_asignacion');
             $table->text('observacion')->nullable();
+            $table->boolean('activo')->default(true); // Asegúrate de tener esta columna
             $table->timestamps();
         });
     }

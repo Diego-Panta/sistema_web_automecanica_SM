@@ -30,8 +30,8 @@
                             <th>Cliente</th>
                             <th>Tipo</th>
                             <th>Estado</th>
-                            <th>Sede</th>
                             <th>Canal</th>
+                            <th>Sede</th>
                             <th>Fecha Creación</th>
                             <th>Acciones</th>
                         </tr>

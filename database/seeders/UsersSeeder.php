@@ -147,5 +147,31 @@ class UsersSeeder extends Seeder
 
         // Asignar rol de marketing
         $user5->assignRole('marketing');
+
+        // Usuario Admin
+        $adminUser = User::firstOrCreate(
+            ['email' => 'diego.panta@empresa.com'],
+            [
+                'name' => 'Diego Panta',
+                'password' => Hash::make('123'),
+                'dni' => '87654321',
+                'celular' => '912345678',
+                'email_personal' => 'diego.panta@gmail.com',
+                'fecha_nacimiento' => '1990-08-20',
+                'direccion' => 'Calle Secundaria 456'
+            ]
+        );
+
+        UserLaborale::create([
+            'user_id' => $adminUser->id,
+            'estado_user_id' => $estadoActivo->id,
+            'sede_id' => $sedeChimbote1->id, // o la sede que prefieras
+            'codigo_trabajador' => 'ADM001',
+            'fecha_contratacion_inicio' => '2020-01-01',
+            'fecha_contratacion_fin' => null,
+        ]);
+
+        // Asignar todos los roles al usuario admin
+        $adminUser->assignRole(\Spatie\Permission\Models\Role::all());
     }
 }

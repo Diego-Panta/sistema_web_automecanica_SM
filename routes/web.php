@@ -44,6 +44,7 @@ Route::prefix('leads')->group(function () {
     Route::post('/assign', [AsignacionLeadController::class, 'store'])->name('leads.assign.store');
     Route::get('/assign/{lead}/edit', [AsignacionLeadController::class, 'edit'])->name('leads.assign.edit');
     Route::put('/assign/{lead}', [AsignacionLeadController::class, 'update'])->name('leads.assign.update');
+    Route::delete('/assign/{assignment}', [AsignacionLeadController::class, 'destroy'])->name('leads.assign.destroy');
     Route::get('/assign/history', [AsignacionLeadController::class, 'history'])->name('leads.assign.history');
 
     // Tipos de Lead (actualizadas con CRUD completo)

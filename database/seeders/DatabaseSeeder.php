@@ -40,7 +40,6 @@ class DatabaseSeeder extends Seeder
             SedesSeeder::class,
             ModeloVehiculosSeeder::class,
             RolePermissionSeeder::class,
-            AdminUserSeeder::class,
             UsersSeeder::class,
         ]);
     }

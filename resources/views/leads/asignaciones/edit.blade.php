@@ -1,38 +1,19 @@
 @extends('adminlte::page')
 
-@section('title', 'Asignar Lead')
+@section('title', 'Editar Asignación de Lead')
 
 @section('content_header')
-    <h1>Asignar Lead a Asesor</h1>
+    <h1>Editar Asignación de Lead</h1>
 @stop
 
 @section('content')
     <div class="card">
         <div class="card-body">
-            <form action="{{ route('leads.assign.store') }}" method="POST">
+            <form action="{{ route('leads.assign.update', $lead) }}" method="POST">
                 @csrf
+                @method('PUT')
                 
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="lead_id">Seleccionar Lead*</label>
-                            <select name="lead_id" id="lead_id" class="form-control select2" required
-                                    onchange="window.location.href='{{ route('leads.assign.create') }}?lead_id=' + this.value">
-                                <option value="">Seleccione un lead</option>
-                                @foreach($leads as $leadOption)
-                                    <option value="{{ $leadOption->id }}" 
-                                        {{ $lead && $lead->id == $leadOption->id ? 'selected' : '' }}>
-                                        #{{ $leadOption->id }} - {{ $leadOption->cliente->nombre_completo }} 
-                                        ({{ $leadOption->tipo->nombre_tipo }} - {{ $leadOption->sede->nombre_sede ?? 'Sin sede' }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                @if($lead)
-                <div class="row mt-3">
                     <div class="col-md-12">
                         <div class="card card-info">
                             <div class="card-header">
@@ -66,14 +47,40 @@
                     </div>
                 </div>
 
+                @if($currentAssignment)
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="card card-warning">
+                            <div class="card-header">
+                                <h3 class="card-title">Asignación Actual</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Asesor asignado:</strong> {{ $currentAssignment->asignado->name }}<br>
+                                        <strong>Rol:</strong> {{ $currentAssignment->asignado->roles->first()->name }}<br>
+                                        <strong>Sede:</strong> {{ $currentAssignment->asignado->laborale->sede->nombre_sede ?? 'N/A' }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Asignado por:</strong> {{ $currentAssignment->asignador->name }}<br>
+                                        <strong>Fecha de asignación:</strong> {{ $currentAssignment->fecha_asignacion->format('d/m/Y H:i') }}<br>
+                                        <strong>Observación:</strong> {{ $currentAssignment->observacion ?? 'Sin observación' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 <div class="row mt-3">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="usuario_asignado_id">Asignar a*</label>
+                            <label for="usuario_asignado_id">Reasignar a*</label>
                             <select name="usuario_asignado_id" id="usuario_asignado_id" class="form-control select2" required>
                                 <option value="">Seleccione un asesor</option>
                                 @foreach($availableAdvisors as $advisor)
-                                    <option value="{{ $advisor->id }}">
+                                    <option value="{{ $advisor->id }}" {{ $currentAssignment && $currentAssignment->usuario_asignado_id == $advisor->id ? 'selected' : '' }}>
                                         {{ $advisor->name }} - 
                                         {{ $advisor->roles->first()->name }} - 
                                         {{ $advisor->laborale->sede->nombre_sede ?? 'Sin sede' }}
@@ -92,9 +99,9 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="observacion">Observación</label>
+                            <label for="observacion">Nueva Observación</label>
                             <textarea name="observacion" id="observacion" class="form-control" rows="3" 
-                                      placeholder="Observaciones sobre la asignación"></textarea>
+                                      placeholder="Observaciones sobre la reasignación">{{ old('observacion') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -104,15 +111,25 @@
                         <i class="fas fa-arrow-left"></i> Cancelar
                     </a>
                     <button type="submit" class="btn btn-primary" {{ $availableAdvisors->isEmpty() ? 'disabled' : '' }}>
-                        <i class="fas fa-save"></i> Asignar Lead
+                        <i class="fas fa-save"></i> Actualizar Asignación
                     </button>
                 </div>
-                @else
-                <div class="alert alert-info mt-3">
-                    Por favor, seleccione un lead para continuar con la asignación.
-                </div>
-                @endif
             </form>
         </div>
     </div>
+@stop
+
+@section('css')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+@stop
+
+@section('js')
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap4'
+            });
+        });
+    </script>
 @stop
